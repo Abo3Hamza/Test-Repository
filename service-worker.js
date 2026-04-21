@@ -10,10 +10,8 @@ const urlsToCache = [
   'icons/icon-144x144.png',
   'icons/icon-152x152.png',
   'icons/icon-192x192.png',
-  'icons/icon-384x384.png',
   'icons/icon-512x512.png',
   'script.js',
-  'style.css',
 
 ];
 
