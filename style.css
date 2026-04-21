@@ -1,0 +1,28 @@
+ body { 
+    font-family: 'Tajawal', sans-serif;
+    background: #0f172a;
+    color: white;
+}
+.glass { 
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+}
+.buzzer-active {
+     box-shadow: 0 0 50px #22c55e;
+      transition: 0.3s; 
+}
+.buzzer-locked { 
+    filter: grayscale(1); opacity: 0.5; 
+}
+@keyframes bounce-slow {
+    0%, 100% {
+            transform: translateY(0); 
+        }
+    50% { 
+            transform: translateY(-10px); 
+        } 
+}
+.winner-anim {
+     animation: bounce-slow 2s infinite; 
+}

@@ -1,377 +1,84 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <title>Snake Game</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Pro Quiz Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html, body {
-            height: 100%;
-            background-color: #1a1aa1;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            width: 95vw;
-            max-width: 95vw;
-            max-height: 95vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            color: white;
-        }
-
-        h1 {
-            font-size: 2em;
-            text-align: center;
-        }
-
-        .fullscreen-btn {
-            position: fixed;
-            top: 15px;
-            z-index: 1001;
-            padding: 10px 15px;
-            border-radius: 50%;
-            font-size: 1.5em;
-            background-color: #95a5a6;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-        .fullscreen-btn {
-            right: 15px;
-        }
-
-        .score-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-
-        .game-board {
-            display: grid;
-            grid-template-columns: repeat(20, 1fr);
-            grid-template-rows: repeat(20, 1fr);
-            gap: 1px;
-            background-color: #2d2d2d;
-            width: 90vmin;
-            height: 90vmin;
-            aspect-ratio: 1 / 1;
-        }
-
-        .cell {
-            width: 100%;
-            height: 100%;
-            background-color: #333;
-        }
-
-        .snake-head {
-            background-color: #4CAF50;
-            border-radius: 50%;
-        }
-
-        .snake-body {
-            background-color: #4CAF50;
-        }
-
-        .snake-tail {
-            background-color: transparent;
-            clip-path: polygon(0% 50%, 100% 50%, 50% 0%);
-            background-color: #4CAF50;
-        }
-
-        .food-normal {
-            background-color: #FF0000; /* أحمر */
-        }
-
-        .food-big {
-            background-color: #2196F3; /* أزرق */
-        }
-
-        .food-rare {
-            background-color: #FFD700; /* ذهبي */
-        }
-
-        .controls {
-            margin-top: auto;
-            margin-bottom: 15px;
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .direction-btn {
-            padding: 12px 60px;
-            margin: 5px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 1.1em;
-            background-color: #03a9f4;
-            color: white;
-            transition: background-color 0.3s ease;
-        }
-
-        .direction-btn:hover {
-            background-color: #0288d1;
-        }
-
-        .start-btn {
-            background-color: #f44336;
-        }
-
-        .start-btn:hover {
-            background-color: #e53935;
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.5em;
-            }
-
-            .score-container {
-                font-size: 1em;
-            }
-
-            .direction-btn {
-                padding: 10px 40px;
-                font-size: 1em;
-            }
-
-            .game-board {
-                width: 90vw;
-                height: 90vw;
-            }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="icons/icon-192x192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body>
-<div class="container">
-    <button class="fullscreen-btn" onclick="toggleFullScreen()">⛶</button>
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <h1>Snake Game 🐍</h1>
-
-    <div class="score-container">
-        <div>Score: <span id="score">0</span></div>
-        <div>High Score: <span id="high-score">0</span></div>
-    </div>
-
-    <button class="direction-btn start-btn" onclick="startGame()">Start Game</button>
-
-    <div id="gameBoard" class="game-board"></div>
-
-    <div class="controls">
-        <div class="flex flex-col items-center">
-            <button class="direction-btn arrow-up" onclick="changeDirection('up')">↑</button>
-            <div class="flex justify-center gap-2 mt-2">
-                <button class="direction-btn arrow-left" onclick="changeDirection('left')">←</button>
-                <button class="direction-btn arrow-right" onclick="changeDirection('right')">→</button>
+    <div id="main-card" class="glass w-full max-w-2xl rounded-3xl p-8 shadow-2xl">
+        
+        <div id="setup-area" class="space-y-6">
+            <h1 class="text-4xl font-bold text-center bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">نظام المسابقات الذكي</h1>
+            <input type="text" id="username" placeholder="اسمك المستعار" class="w-full bg-slate-800 border-none rounded-xl p-4 text-white focus:ring-2 focus:ring-blue-500">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 bg-slate-800/50 rounded-2xl border border-slate-700">
+                    <p class="mb-2 text-sm text-slate-400">للمنظمين:</p>
+                    <input type="number" id="maxPlayers" placeholder="عدد المشاركين" class="w-full bg-slate-700 rounded-lg p-2 mb-2">
+                    <input type="number" id="questionTime" placeholder="وقت السؤال (ثانية)" class="w-full bg-slate-700 rounded-lg p-2 mb-2">
+                    <button onclick="createRoom()" class="w-full bg-blue-600 hover:bg-blue-700 transition p-3 rounded-xl font-bold">إنشاء غرفة</button>
+                </div>
+                <div class="p-4 bg-slate-800/50 rounded-2xl border border-slate-700">
+                    <p class="mb-2 text-sm text-slate-400">للمشاركين:</p>
+                    <input type="text" id="roomInput" placeholder="كود الغرفة" class="w-full bg-slate-700 rounded-lg p-2 mb-2 uppercase">
+                    <button onclick="joinRoom()" class="w-full bg-emerald-600 hover:bg-emerald-700 transition p-3 rounded-xl font-bold">انضمام</button>
+                </div>
             </div>
-            <button class="direction-btn arrow-down" onclick="changeDirection('down')">↓</button>
+        </div>
+
+        <div id="room-area" class="hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <span id="displayCode" class="bg-blue-500/20 text-blue-400 px-4 py-1 rounded-full text-sm font-mono"></span>
+                <span id="timerDisplay" class="text-2xl font-bold text-yellow-400"></span>
+            </div>
+
+            <div id="questionDisplay" class="text-2xl text-center font-bold py-6 min-h-[100px] border-b border-slate-700">
+                انتظار السؤال القادم...
+            </div>
+       <div id="participant-view" class="flex flex-col items-center py-8">
+                <button id="buzzBtn" onclick="pressBuzzer()" class="w-48 h-48 rounded-full bg-emerald-500 text-white text-2xl font-bold shadow-lg hover:scale-105 active:scale-95 transition-all disabled:buzzer-locked">
+                    إجابة!
+                </button>
+                <p id="statusMsg" class="mt-4 text-slate-400">أسرع بالضغط!</p>
+            </div>
+
+            <div id="admin-panel" class="hidden bg-slate-800/80 p-6 rounded-2xl border border-blue-500/30">
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="newQuestion" placeholder="اكتب السؤال هنا..." class="flex-1 bg-slate-700 rounded-lg p-2 text-sm">
+                    <button onclick="sendQuestion()" class="bg-blue-600 px-4 py-2 rounded-lg text-sm">إرسال</button>
+                </div>
+                <div id="judge-actions" class="hidden flex justify-around p-4 bg-slate-900 rounded-xl">
+                    <span id="whoPressed" class="text-yellow-400"></span>
+                    <button onclick="givePoints(10)" class="bg-emerald-600 px-3 py-1 rounded text-xs">+10</button>
+                    <button onclick="givePoints(-5)" class="bg-red-600 px-3 py-1 rounded text-xs">-5</button>
+                    <button onclick="resetBuzzer()" class="bg-slate-600 px-3 py-1 rounded text-xs">تصفير</button>
+                </div>
+                <button onclick="showWinner()" class="w-full mt-4 bg-purple-600 p-2 rounded-lg text-sm font-bold uppercase tracking-widest">عرض الفائز النهائي 🏆</button>
+            </div>
+
+            <div class="mt-6">
+                <h4 class="text-sm text-slate-500 mb-2">لوحة المتصدرين:</h4>
+                <div id="leaderboard" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <div id="winner-screen" class="hidden text-center space-y-6 py-20">
+            <h1 class="text-6xl winner-anim">👑</h1>
+            <h2 class="text-4xl font-bold">البطل هو:</h2>
+            <div id="winnerName" class="text-5xl text-yellow-400 font-black"></div>
+            <button onclick="location.reload()" class="text-blue-400 underline">ابدأ مسابقة جديدة</button>
         </div>
     </div>
-</div>
-
-<script>
-    let snake = [];
-    let food = {};
-    let direction = 'right';
-    let score = 0;
-    let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
-    let gameBoard = document.getElementById('gameBoard');
-    let scoreElement = document.getElementById('score');
-    let highScoreElement = document.getElementById('high-score');
-    let gameLoop;
-
-    function initGame() {
-        gameBoard.innerHTML = '';
-        snake = [{x: 4, y: 4}]; // بداية برأس واحد فقط
-        direction = 'right';
-        score = 0;
-        scoreElement.textContent = score;
-        highScoreElement.textContent = highScore;
-
-        for(let i = 0; i < 20; i++) {
-            for(let j = 0; j < 20; j++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.setAttribute('data-x', j);
-                cell.setAttribute('data-y', i);
-                gameBoard.appendChild(cell);
-            }
-        }
-
-        generateFood();
-        draw();
-    }
-
-    function draw() {
-        const cells = document.querySelectorAll('.cell');
-        cells.forEach(cell => {
-            cell.className = 'cell';
-        });
-
-        snake.forEach((segment, index) => {
-            const cell = document.querySelector(`[data-x="${segment.x}"][data-y="${segment.y}"]`);
-            if (!cell) return;
-
-            if(index === 0) {
-                cell.classList.add('snake-head');
-            } else if (index === snake.length - 1) {
-                cell.classList.add('snake-tail');
-            } else {
-                cell.classList.add('snake-body');
-            }
-        });
-
-        const foodCell = document.querySelector(`[data-x="${food.x}"][data-y="${food.y}"]`);
-        if (foodCell) {
-            foodCell.classList.add(food.type);
-        }
-    }
-
-    function generateFood() {
-        const emptyCells = [];
-        const cells = document.querySelectorAll('.cell');
-
-        cells.forEach(cell => {
-            const x = parseInt(cell.getAttribute('data-x'));
-            const y = parseInt(cell.getAttribute('data-y'));
-
-            if (!snake.some(segment => segment.x === x && segment.y === y)) {
-                emptyCells.push({x, y});
-            }
-        });
-
-        if (emptyCells.length === 0) return;
-
-        const randomIndex = Math.floor(Math.random() * emptyCells.length);
-        const selected = emptyCells[randomIndex];
-
-        const typeRoll = Math.random();
-
-        let foodType = 'food-normal';
-        let foodValue = 1;
-        let scoreIncrease = 10;
-
-        if (typeRoll < 0.10) {
-            foodType = 'food-rare';
-            foodValue = 5;
-            scoreIncrease = 50;
-        } else if (typeRoll < 0.30) {
-            foodType = 'food-big';
-            foodValue = 3;
-            scoreIncrease = 30;
-        }
-
-        food = {
-            x: selected.x,
-            y: selected.y,
-            type: foodType,
-            value: foodValue,
-            scoreIncrease: scoreIncrease
-        };
-    }
-
-    function toggleFullScreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-        }
-    }
-
-    function move() {
-        const head = {...snake[0]};
-
-        switch(direction) {
-            case 'right': head.x++; break;
-            case 'left': head.x--; break;
-            case 'up': head.y--; break;
-            case 'down': head.y++; break;
-        }
-
-        // التفاف عند الحواف
-        head.x = (head.x + 20) % 20;
-        head.y = (head.y + 20) % 20;
-
-        // التصادم مع الذات
-        if(snake.some((seg, i) => i > 0 && seg.x === head.x && seg.y === head.y)) {
-            gameOver();
-            return;
-        }
-
-        snake.unshift(head);
-
-        if(head.x === food.x && head.y === food.y) {
-            score += food.scoreIncrease;
-            scoreElement.textContent = score;
-
-            generateFood();
-
-            // 💡 هنا يتم زيادة الطول بمقدار food.value
-            // نقوم بـ unshift فارغة لزيادة الطول دون تنفيذ pop
-            for (let i = 1; i < food.value; i++) {
-                snake.unshift({...snake[0]});
-            }
-
-        } else {
-            snake.pop(); // نزيل الذيل إذا لم يؤكل شيء
-        }
-
-        draw();
-    }
-
-    function gameOver() {
-        clearInterval(gameLoop);
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem('highScore', highScore);
-        }
-        alert(`Game Over! Final Score: ${score}`);
-        initGame();
-    }
-
-    function startGame() {
-        initGame();
-        gameLoop = setInterval(move, 200);
-    }
-
-    function changeDirection(newDir) {
-        if(newDir === 'up' && direction !== 'down') direction = 'up';
-        else if(newDir === 'down' && direction !== 'up') direction = 'down';
-        else if(newDir === 'left' && direction !== 'right') direction = 'left';
-        else if(newDir === 'right' && direction !== 'left') direction = 'right';
-    }
-
-    window.onload = () => {
-        highScoreElement.textContent = highScore;
-    };
-
-    initGame();
-</script>
+    <script type="module" src="script.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
