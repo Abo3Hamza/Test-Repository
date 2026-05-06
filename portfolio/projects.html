@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاريعي - أحمد رمضان</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile-fixes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="images/logo.png" alt="AGpro Logo" style="height: 50px; width: auto; margin-right: 10px;">
+                <h1>Ahmed Ramadan</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="projects.html" class="active">مشاريعي</a></li>
+                    <li><a href="about.html">من أنا</a></li>
+                    <li><a href="contact.html">تواصل معي</a></li>
+                    <li><a href="en/projects.html" id="lang-switcher-en">English</a></li>
+                    <li><a href="#" id="theme-toggle" title="تبديل الوضع"><i class="fas fa-moon"></i></a></li>
+                </ul>
+            </nav>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>مشاريعي</h1>
+            <p>مجموعة من المشاريع التي قمت بتطويرها</p>
+        </div>
+    </section>
+
+    <section class="projects">
+        <div class="container">
+            <div class="projects-filter">
+                <button class="filter-btn active" data-filter="all">الكل</button>
+                <button class="filter-btn" data-filter="web">تطوير الويب</button>
+                <button class="filter-btn" data-filter="mobile">تطبيقات الموبايل</button>
+                <button class="filter-btn" data-filter="desktop">تطبيقات سطح المكتب</button>
+            </div>
+
+            <div class="projects-grid">
+                <div class="project-card" data-category="mobile" id="sebha">
+                    <div class="project-image">
+                        <img src="images/projects/sebha.jpg" alt="تطبيق السبحة الإلكترونية">
+                    </div>
+                    <div class="project-info">
+                        <h3>تطبيق السبحة الإلكترونية</h3>
+                        <p>تطبيق بسيط وسهل الاستخدام للسبحة الإلكترونية مع واجهة مستخدم جذابة. * يمكنك تحميل التطبيق من خلال الضغط علي مشاهده المشروع ثم اضافه للشاشه الرئيسيه ثم تنزيل افتحه لمره واحده بانترنت وبعد ذلك سوف يعمل معك بدون انترنت</p>
+                        <div class="project-tags">
+                            <span>Java</span>
+                            <span>Android</span>
+                        </div>
+                        <a href="https://ahm3dramad3n.github.io/tasbih-App/" class="btn small" target="_blank">مشاهدة المشروع</a>
+                    </div>
+                </div>
+
+                <div class="project-card" data-category="desktop" id="xo">
+                    <div class="project-image">
+                        <img src="images/projects/xo.jpg" alt="لعبة XO">
+                    </div>
+                    <div class="project-info">
+                        <h3>لعبة XO (تيك تاك تو)</h3>
+                        <p>لعبة XO الكلاسيكية مع إمكانية اللعب ضد الكمبيوتر أو مع صديق.</p>
+                        <div class="project-tags">
+                            <span>C++</span>
+                            <span>GUI</span>
+                        </div>
+                        <a href="https://apk.e-droid.net/apk/app3482797-1b6o0m.apk?v=1" class="btn small" target="_blank">تحميل التطبيق</a>
+                    </div>
+                </div>
+
+                <div class="project-card" data-category="desktop" id="gomoku">
+                    <div class="project-image">
+                        <img src="images/projects/gomoku.png" alt="لعبة جوموكو">
+                    </div>
+                    <div class="project-info">
+                        <h3>لعبة جوموكو</h3>
+                        <p>لعبة استراتيجية تشبه لعبة الـ XO ولكن على لوحة أكبر وبقواعد مختلفة. * يمكنك تحميل التطبيق من خلال الضغط علي مشاهده المشروع ثم اضافه للشاشه الرئيسيه ثم تنزيل افتحه لمره واحده بانترنت وبعد ذلك سوف يعمل معك بدون انترنت  </p>
+                        <div class="project-tags">
+                            <span>C++</span>
+                            <span>الخوارزميات</span>
+                        </div>
+                        <a href="https://ahm3dramad3n.github.io/Gomoku-game/Gomoku.html" class="btn small" target="_blank">مشاهدة المشروع</a>
+                    </div>
+                </div>
+
+                <div class="project-card" data-category="desktop" id="snake">
+                    <div class="project-image">
+                        <img src="images/projects/snake.png" alt="لعبة الثعبان">
+                    </div>
+                    <div class="project-info">
+                        <h3>لعبة الثعبان</h3>
+                        <p>نسخة مطورة من لعبة الثعبان الكلاسيكية مع مستويات متعددة وميزات إضافية. * يمكنك تحميل التطبيق من خلال الضغط علي مشاهده المشروع ثم اضافه للشاشه الرئيسيه ثم تنزيل افتحه لمره واحده بانترنت وبعد ذلك سوف يعمل معك بدون انترنت</p>
+                        <div class="project-tags">
+                            <span>Java</span>
+                            <span>JavaFX</span>
+                        </div>
+                        <a href="https://ahm3dramad3n.github.io/Snake-game/" class="btn small" target="_blank">مشاهدة المشروع</a>
+                    </div>
+                </div>
+
+                <div class="project-card" data-category="mobile" id="kids_games">
+                    <div class="project-image">
+                        <img src="images/projects/kids_games.png" alt="Online Games Kids">
+                    </div>
+                    <div class="project-info">
+                        <h3>Online Games Kids</h3>
+                        <p>مجموعة من الألعاب التعليمية والترفيهية للأطفال بواجهة مستخدم جذابة وألوان زاهية.</p>
+                        <div class="project-tags">
+                            <span>Java</span>
+                            <span>Android</span>
+                        </div>
+                        <a href="https://apk.e-droid.net/apk/app3574700-xy6plm.apk?v=1" class="btn small" target="_blank">تحميل التطبيق</a>
+                    </div>
+                </div>
+
+                <div class="project-card" data-category="desktop" id="مشروع جديد">
+                    <div class="project-image">
+                        <img src="images/projects/add.png" alt="مشروع جديد">
+                    </div>
+                    <div class="project-info">
+                        <h3>مشروع جديد</h3>
+                        <p> قريبا </p>
+                        <div class="project-tags">
+                            <span>قريبا</span>
+                            <span>قريبا</span>
+                        </div>
+                        <a href="#" class="btn small disabled">قريبا</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-cta">
+        <div class="container">
+            <h2>هل لديك مشروع تريد تنفيذه؟</h2>
+            <p>أنا جاهز للعمل على مشروعك القادم. دعنا نتواصل ونناقش التفاصيل.</p>
+            <a href="contact.html" class="btn primary">تواصل معي الآن</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="images/logo.png" alt="AGpro Logo" style="height: 40px; width: auto; margin-bottom: 10px;">
+                    <h2>Ahmed Ramadan</h2>
+                    <p>طالب في كلية الحاسبات والمعلومات</p>
+                </div>
+                <div class="footer-links">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="projects.html">المشاريع</a></li>
+                        <li><a href="about.html">من أنا</a></li>
+                        <li><a href="contact.html">تواصل معي</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>معلومات التواصل</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> ahmed.agpro@outlook.com</li>
+                        <li><i class="fas fa-phone"></i> +201225936568</li>
+                        <li><i class="fas fa-map-marker-alt"></i> أسيوط، مصر</li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h3>تابعني</h3>
+                    <div class="social-icons">
+                        <a href="https://t.me/Ahm3d_AG" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.linkedin.com/in/ahmed-ramadan-abd-elrady-b01baa344" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/share/1BRoJ2PkUU/" target="_blank"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/ahmed____a__g?igsh=b2ozbmVhNzUwZDZ0" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 جميع الحقوق محفوظة , Ahmed Ramadan</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Google Analytics -->
+    <script src="js/analytics.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+

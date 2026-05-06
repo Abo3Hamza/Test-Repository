@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Ahmed Ramadan</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/mobile-fixes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <!-- Language switcher script - Handled by main.js now -->
+    <style>
+        /* Enhanced contact form styles */
+        .contact-form-container {
+            display: flex; /* Use flexbox */
+            flex-direction: column; /* Stack form and message vertically */
+        }
+        .contact-form {
+            background-color: var(--bg-light); /* Use CSS variable */
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: var(--box-shadow); /* Use CSS variable */
+            order: 1; /* Form comes first */
+        }
+        
+        .contact-form h2 {
+            color: var(--text-color); /* Use CSS variable */
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .contact-form h2:after {
+            content: ";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color)); /* Use CSS variables */
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-light); /* Use CSS variable */
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color); /* Use CSS variable */
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
+            background-color: var(--bg-color); /* Use CSS variable */
+            color: var(--text-color); /* Use CSS variable */
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color); /* Use CSS variable */
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            outline: none;
+        }
+        
+        .btn.primary {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color)); /* Use CSS variables */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Enhanced contact info styles */
+        .contact-info {
+            padding: 30px;
+            border-radius: 10px;
+            background-color: var(--bg-light); /* Use CSS variable */
+            box-shadow: var(--box-shadow); /* Use CSS variable */
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color)); /* Use CSS variables */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0; /* Prevent icon from shrinking */
+        }
+        
+        .contact-icon i {
+            color: white;
+            font-size: 20px;
+        }
+        
+        .contact-text h3 {
+            margin: 0 0 5px;
+            font-size: 18px;
+            color: var(--text-color); /* Use CSS variable */
+        }
+        
+        .contact-text p {
+            margin: 0;
+            color: var(--text-light); /* Use CSS variable */
+            word-break: break-word; /* Prevent long text from overflowing */
+        }
+        
+        .social-links {
+            margin-top: 30px;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap; /* Allow icons to wrap on smaller screens */
+        }
+        
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-color); /* Use CSS variable */
+            color: var(--text-light); /* Use CSS variable */
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .social-icons a:hover {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color)); /* Use CSS variables */
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        /* Responsive layout */
+        .contact-content {
+            display: flex;
+            gap: 30px;
+        }
+        .contact-info, .contact-form-container {
+            flex: 1; /* Make both columns take equal space */
+        }
+
+        @media (max-width: 992px) { /* Adjust breakpoint if needed */
+             .contact-content {
+                flex-direction: column;
+            }
+            .contact-info, .contact-form-container {
+                width: 100%;
+                margin-bottom: 30px;
+            }
+            .contact-info {
+                 margin-bottom: 0; /* Remove bottom margin when stacked */
+            }
+        }
+        
+        /* Fix for mobile navbar and white space */
+        body {
+            padding-top: 0; /* Remove potential body padding */
+        }
+        header {
+            position: fixed; /* Reverted to fixed for consistency */
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 0.75rem 0;
+            height: 70px;
+        }
+        
+        .page-header {
+            padding-top: calc(70px + 3rem); /* Ensure padding accounts for fixed header */
+            margin-top: 0; /* Ensure no extra margin */
+        }
+        section.contact {
+             padding-top: 3rem; /* Standard section padding */
+        }
+        
+        @media (max-width: 768px) {
+             header {
+                height: 60px; /* Smaller header on mobile */
+                padding: 0.5rem 0;
+            }
+            .page-header {
+                padding-top: calc(60px + 2rem); /* Mobile header height + desired top padding */
+            }
+             section.contact {
+                 padding-top: 2rem; /* Adjust for mobile */
+            }
+        }
+
+        /* Success message styles */
+        .contact-success-message {
+            display: none; /* Hide by default */
+            background-color: var(--success-bg); /* Use CSS variable */
+            color: var(--success-text); /* Use CSS variable */
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            order: 2; /* Message appears after the form */
+        }
+        .contact-success-message.visible {
+            display: block; /* Show when needed */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="../images/logo.png" alt="AGpro Logo" style="height: 50px; width: auto; margin-right: 10px;">
+                <h1>Ahmed Ramadan</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="about.html">About Me</a></li>
+                    <li><a href="contact.html" class="active">Contact</a></li>
+                    <li><a href="../contact.html" id="lang-switcher-ar">العربية</a></li>
+                    <li><a href="#" id="theme-toggle" title="Toggle Theme"><i class="fas fa-moon"></i></a></li>
+                </ul>
+            </nav>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Contact Me</h1>
+            <p>I'm here to answer your inquiries and work on your next project</p>
+        </div>
+    </section>
+
+    <section class="contact">
+        <div class="container">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h2>Contact Information</h2>
+                    <p>You can contact me directly through the following means of communication or via the contact form.</p>
+                    
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-text">
+                                <h3>Email</h3>
+                                <p>ahmed.agpro@outlook.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-text">
+                                <h3>Phone</h3>
+                                <p>+201225936568</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-text">
+                                <h3>Address</h3>
+                                <p>Assiut, Egypt</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="social-links">
+                        <h3>Follow Me On</h3>
+                        <div class="social-icons">
+                            <a href="https://t.me/Ahm3d_AG" title="Telegram" target="_blank"><i class="fab fa-telegram"></i></a>
+                            <a href="https://www.instagram.com/ahmed____a__g" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                            <a href="https://www.linkedin.com/in/ahmed-ramadan-abd-elrady-b01baa344" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+                            <a href="https://www.facebook.com/share/1BRoJ2PkUU/" title="Facebook" target="_blank"><i class="fab fa-facebook"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form-container">
+                    <div class="contact-form">
+                        <h2>Send a Message</h2>
+                        <form id="contact-form" action="https://formsubmit.co/ahmed.agpro@outlook.com" method="POST">
+                            <!-- FormSubmit configuration -->
+                            <input type="hidden" name="_subject" value="New Message from Your Personal Website (EN)">
+                            <input type="hidden" name="_template" value="table">
+                            <input type="hidden" name="_captcha" value="false">
+                            <!-- Use AJAX, so _next is not needed here -->
+                            <!-- <input type="hidden" name="_next" value="https://temp0account.github.io/portfolio/en/contact.html"> -->
+                            <input type="hidden" name="_autoresponse" value="Thank you for contacting me. I will get back to you as soon as possible.">
+
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subject">Subject</label>
+                                <input type="text" id="subject" name="subject" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" rows="5" required></textarea>
+                            </div>
+
+                            <!-- Status Message Divs (added based on JS) -->
+                            <div id="contact-success-message-en" class="contact-success-message" style="--success-color: var(--success-color); --success-color-rgb: var(--success-color-rgb);">
+                                <p>Your message has been sent successfully! Thank you for contacting me.</p>
+                            </div>
+                            <!-- Add a similar div with id="contact-success-message-ar" in the Arabic version -->
+                            
+                            <button type="submit" class="btn primary">Send Message</button>
+                        </form>
+                    </div>
+                    <!-- Removed redundant success message div (if any existed before) -->
+                    <!-- The old #form-status div is no longer used by the success logic in main.js -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="map">
+        <div class="container">
+            <h2 class="section-title">My Location</h2>
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d114432.45266210453!2d31.127082699999998!3d27.1809328!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14450b9f97b5c0e5%3A0x1a73e94a1dcb2e8!2z2KPYs9mK2YjYt9iMINmF2K3Yp9mB2LjYqSDYo9iz2YrZiNi3!5e0!3m2!1sen!2seg!4v1621345678901!5m2!1sen!2seg" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What development services do you offer?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>I offer a variety of development services, including web development, mobile applications, desktop applications, databases, and application programming interfaces (APIs).</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How long does it take to develop a complete website?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>The duration of website development varies depending on the complexity of the project and its requirements. Simple websites typically take 2-4 weeks, while more complex projects may take 8-12 weeks or more.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What is the cost of developing a website or application?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>The cost depends on the scope of the project, its complexity, and the required features. I offer competitive pricing while maintaining high quality. We can discuss your project requirements and provide a detailed quote.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Do you provide support after project completion?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, I provide technical support for a specified period after project delivery to ensure everything works as expected. We can also discuss ongoing maintenance and support plans if needed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="../images/logo.png" alt="AGpro Logo" style="height: 40px; width: auto; margin-bottom: 10px;">
+                    <h2>Ahmed Ramadan</h2>
+                    <p>Computer Science Student</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="../projects.html">Projects</a></li>
+                        <li><a href="../about.html">About Me</a></li>
+                        <li><a href="../contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact Information</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> ahmed.agpro@outlook.com</li>
+                        <li><i class="fas fa-phone"></i> +201225936568</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Assiut, Egypt</li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h3>Follow Me</h3>
+                    <div class="social-icons">
+                        <a href="https://t.me/Ahm3d_AG" title="Telegram" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.instagram.com/ahmed____a__g" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/in/ahmed-ramadan-abd-elrady-b01baa344" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/share/1BRoJ2PkUU/" title="Facebook" target="_blank"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 All Rights Reserved , Ahmed Ramadan</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Google Analytics -->
+    <script src="../js/analytics.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>
+

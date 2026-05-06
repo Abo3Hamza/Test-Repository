@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahmed Ramadan - Computer Science Student</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/mobile-fixes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <!-- Language switcher script - Handled by main.js now -->
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="../images/logo.png" alt="AGpro Logo" style="height: 50px; width: auto; margin-right: 10px;">
+                <h1>Ahmed Ramadan</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="about.html">About Me</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="../" id="lang-switcher-ar">العربية</a></li>
+                    <li><a href="#" id="theme-toggle" title="Toggle Theme"><i class="fas fa-moon"></i></a></li>
+                </ul>
+            </nav>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Hello, I'm <span class="highlight">Ahmed Ramadan Abdelrady</span></h1>
+                <p>Computer Science student at Assiut University, offering professional programming services</p>
+                <div class="cta-buttons">
+                    <a href="projects.html" class="btn primary">View My Work</a>
+                    <a href="contact.html" class="btn secondary">Contact Me</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="../images/personal_photo.jpg" alt="Ahmed Ramadan Photo" style="border-radius: 10px; max-width: 100%; height: auto;">
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section -->
+    <section class="video-section">
+        <div class="container">
+            <h2 class="section-title">Introductory Video</h2>
+            <div class="video-container">
+                <video controls width="100%" preload="metadata">
+                    <source src="../videos/cv_videos.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="container">
+            <h2 class="section-title">My Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Web Development</h3>
+                    <p>Design and development of interactive and responsive websites using the latest technologies.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Applications</h3>
+                    <p>Development of applications for Android and iOS smartphones with smooth user interfaces.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Databases</h3>
+                    <p>Design and management of databases and performance optimization for web and mobile applications.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>Programming Solutions</h3>
+                    <p>Development of custom programming solutions to meet customer needs and solve technical problems.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="featured-projects">
+        <div class="container">
+            <h2 class="section-title">Latest Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="../images/projects/sebha.jpg" alt="Electronic Tasbih Application">
+                    </div>
+                    <div class="project-info">
+                        <h3>Electronic Tasbih Application</h3>
+                        <p>A simple and easy-to-use electronic tasbih application with an attractive user interface.</p>
+                        <div class="project-tags">
+                            <span>Java</span>
+                            <span>Android</span>
+                        </div>
+                        <a href="projects.html#sebha" class="btn small">View Details</a>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="../images/projects/xo.jpg" alt="XO Game">
+                    </div>
+                    <div class="project-info">
+                        <h3>XO Game (Tic Tac Toe)</h3>
+                        <p>Classic XO game with the ability to play against the computer or with a friend.</p>
+                        <div class="project-tags">
+                            <span>C++</span>
+                            <span>GUI</span>
+                        </div>
+                        <a href="projects.html#xo" class="btn small">View Details</a>
+                    </div>
+                </div>
+            </div>
+            <div class="view-all">
+                <a href="projects.html" class="btn secondary">View All Projects</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="skills">
+        <div class="container">
+            <h2 class="section-title">My Skills</h2>
+            <div class="skills-container">
+                <div class="skill-category">
+                    <h3>Programming Languages</h3>
+                    <div class="skill-bars">
+                        <div class="skill">
+                            <div class="skill-name">C++</div>
+                            <div class="skill-bar">
+                                <div class="skill-level" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-name">Java</div>
+                            <div class="skill-bar">
+                                <div class="skill-level" style="width: 80%"></div>
+                            </div>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-name">Python</div>
+                            <div class="skill-bar">
+                                <div class="skill-level" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-name">JavaScript</div>
+                            <div class="skill-bar">
+                                <div class="skill-level" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <h3>Programming Techniques</h3>
+                    <div class="skill-bars">
+                        <div class="skill">
+                            <div class="skill-name">Algorithms</div>
+                            <div class="skill-bar">
+                                <div class="skill-level" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-name">Data Structures</div>
+                            <div class="skill-bar">
+                                <div class="skill-level" style="width: 80%"></div>
+                            </div>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-name">Competitive Programming</div>
+                            <div class="skill-bar">
+                                <div class="skill-level" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-name">Application Development</div>
+                            <div class="skill-bar">
+                                <div class="skill-level" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-cta">
+        <div class="container">
+            <h2>Do you have a project you want to implement?</h2>
+            <p>I'm ready to work on your next project. Let's connect and discuss the details.</p>
+            <a href="contact.html" class="btn primary">Contact Me Now</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="../images/logo.png" alt="AGpro Logo" style="height: 40px; width: auto; margin-bottom: 10px;">
+                    <h2>Ahmed Ramadan</h2>
+                    <p>Computer Science Student</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="projects.html">Projects</a></li>
+                        <li><a href="about.html">About Me</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact Information</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> ahmed.agpro@outlook.com</li>
+                        <li><i class="fas fa-phone"></i> +201225936568</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Assiut, Egypt</li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h3>Follow Me</h3>
+                    <div class="social-icons">
+                        <a href="https://t.me/Ahm3d_AG" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.linkedin.com/in/ahmed-ramadan-abd-elrady-b01baa344" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/share/1BRoJ2PkUU/" target="_blank"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/ahmed____a__g?igsh=b2ozbmVhNzUwZDZ0" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 All Rights Reserved , Ahmed Ramadan</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Google Analytics -->
+    <script src="../js/analytics.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>
+
