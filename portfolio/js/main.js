@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     contactForm.reset();  // Clear the form 
                     // Hide success message after 8 seconds
                     // open thank-you.html in this window
-                    window.location.href = isArabic ? '/portfolio/thank-you.html' : '/portfolio/en/thank-you.html';
+                    window.location.href = isArabic ? 'thank-you.html' : 'en/thank-you.html';
                     // setTimeout(() => {
                     //     if (successMessageDiv) successMessageDiv.classList.remove('visible');
                     // }, 8000);
@@ -151,16 +151,10 @@ document.addEventListener('DOMContentLoaded', function() {
             langSwitcherAr.addEventListener('click', function(e) {
                 e.preventDefault();
                 const currentPath = window.location.pathname;
-                let targetPath = '';
-                const pathParts = currentPath.split('/');
+                            const pathParts = currentPath.split('/');
                 const pageName = pathParts[pathParts.length - 1];
-                
-                if (pageName === 'index.html' || pageName === '') {
-                    targetPath = '/portfolio/'; // Go to Arabic root index
-                } else {
-                    // Construct the Arabic version path by removing '/en/'
-                    targetPath = currentPath.replace('/en/', '/');
-                }
+
+                const targetPath = pageName === 'index.html' || pageName === '' ? '../index.html' : '../' + pageName;
                 window.location.href = targetPath;
             });
         }
@@ -169,21 +163,10 @@ document.addEventListener('DOMContentLoaded', function() {
             langSwitcherEn.addEventListener('click', function(e) {
                 e.preventDefault();
                 const currentPath = window.location.pathname;
-                let targetPath = '';
                 const pathParts = currentPath.split('/');
                 const pageName = pathParts[pathParts.length - 1];
-                
-                if (pageName === 'index.html' || pageName === '' || currentPath.endsWith('/portfolio/')) {
-                    targetPath = '/portfolio/en/index.html'; // Go to English root index
-                } else {
-                    // Construct the English version path by adding '/en/'
-                    // Ensure we don't add /en/ if it's already there (shouldn't happen with this logic, but safe)
-                    if (!currentPath.startsWith('/portfolio/en/')) {
-                         targetPath = '/portfolio/en/' + pageName;
-                    } else {
-                        targetPath = currentPath; // Already in English section
-                    }
-                }
+
+                const targetPath = pageName === 'index.html' || pageName === '' ? 'en/index.html' : 'en/' + pageName;
                 window.location.href = targetPath;
             });
         }
