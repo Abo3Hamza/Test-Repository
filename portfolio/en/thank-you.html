@@ -16,19 +16,19 @@
         
         .thank-you-icon {
             font-size: 80px;
-            color: #2ecc71;
+            color: var(--success-color);
             margin-bottom: 30px;
         }
         
         .thank-you-title {
             font-size: 36px;
-            color: #333;
+            color: var(--text-color);
             margin-bottom: 20px;
         }
         
         .thank-you-message {
             font-size: 18px;
-            color: #666;
+            color: var(--text-color);
             margin-bottom: 40px;
             line-height: 1.6;
         }
@@ -36,7 +36,7 @@
         .btn-home {
             display: inline-block;
             background: linear-gradient(to right, #3498db, #2ecc71);
-            color: white;
+            color: var(--background-color);
             padding: 12px 30px;
             border-radius: 5px;
             text-decoration: none;
@@ -64,13 +64,14 @@
                 font-size: 60px;
             }
         }
+
     </style>
 </head>
 <body>
     <header>
         <div class="container">
             <div class="logo">
-                <img src="../images/logo.jpg" alt="AGpro Logo" style="height: 50px; width: auto; margin-right: 10px;">
+                <img src="../images/logo.png" alt="AGpro Logo" style="height: 50px; width: auto; margin-right: 10px;">
                 <h1>Ahmed Ramadan</h1>
             </div>
             <nav>
@@ -80,6 +81,7 @@
                     <li><a href="about.html">About Me</a></li>
                     <li><a href="contact.html">Contact</a></li>
                     <li><a href="../thank-you.html">العربية</a></li>
+                    <li><a href="#" id="theme-toggle" title="تبديل الوضع"><i class="fas fa-moon"></i></a></li>
                 </ul>
             </nav>
             <div class="menu-toggle">
@@ -100,49 +102,11 @@
         <a href="index.html" class="btn-home">Return to Homepage</a>
     </section>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <img src="../images/logo.jpg" alt="AGpro Logo" style="height: 40px; width: auto; margin-bottom: 10px;">
-                    <h2>Ahmed Ramadan</h2>
-                    <p>Computer Science Student</p>
-                </div>
-                <div class="footer-links">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="projects.html">Projects</a></li>
-                        <li><a href="about.html">About Me</a></li>
-                        <li><a href="contact.html">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-contact">
-                    <h3>Contact Information</h3>
-                    <ul>
-                        <li><i class="fas fa-envelope"></i> ahmed.agpro@outlook.com</li>
-                        <li><i class="fas fa-phone"></i> +201225936568</li>
-                        <li><i class="fas fa-map-marker-alt"></i> Assiut, Egypt</li>
-                    </ul>
-                </div>
-                <div class="footer-social">
-                    <h3>Follow Me</h3>
-                    <div class="social-icons">
-                        <a href="https://t.me/Ahm3d_Ag"><i class="fab fa-telegram"></i></a>
-                        <a href="https://www.linkedin.com/in/ahmed-ramadan-abd-elrady-b01baa344"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://www.facebook.com/share/1BRoJ2PkUU/"><i class="fab fa-facebook"></i></a>
-                        <a href="https://www.instagram.com/ahmed__ag?igsh=b2ozbmVhNzUwZDZ0"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 All Rights Reserved , Ahmed Ramadan</p>
-            </div>
-        </div>
-    </footer>
+   <div id="footer-placeholder"></div>
 
     <!-- Google Analytics -->
     <script src="../js/analytics.js"></script>
+    <script src="../js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const menuToggle = document.querySelector('.menu-toggle');

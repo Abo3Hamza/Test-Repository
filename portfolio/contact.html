@@ -343,14 +343,7 @@
                 <div class="contact-form-container">
                     <div class="contact-form">
                         <h2>أرسل رسالة</h2>
-                        <form id="contact-form" action="https://formsubmit.co/ahmed.agpro@outlook.com" method="POST">
-                            <!-- FormSubmit configuration -->
-                            <input type="hidden" name="_subject" value="رسالة جديدة من موقعك الشخصي">
-                            <input type="hidden" name="_template" value="table">
-                            <input type="hidden" name="_captcha" value="false">
-                            <!-- Remove _next for AJAX handling -->
-                            <!-- <input type="hidden" name="_next" value="https://temp0account.github.io/portfolio/contact.html"> -->
-                            <input type="hidden" name="_autoresponse" value="شكراً لتواصلك معي. سأرد عليك في أقرب وقت ممكن.">
+                        <form id="contact-form" action="#" method="POST">
 
                             <div class="form-group">
                                 <label for="name">الاسم</label>
@@ -372,14 +365,9 @@
                                 <textarea id="message" name="message" rows="5" required></textarea>
                             </div>
 
-                            <!-- Status Message Divs (added based on JS) -->
-                            <div id="contact-success-message-ar" class="form-status-message" style="--success-color: var(--success-color); --success-color-rgb: var(--success-color-rgb);">
-                                <p>تم إرسال رسالتك بنجاح! شكراً لتواصلك.</p>
-                            </div>
-                            <!-- Add a similar div with id="contact-success-message-en" in the English version -->
-
+                            <div class="g-recaptcha" data-sitekey="6Leit9wsAAAAACVSfS6APu9kps9B-unmOl3oRin5"></div>
                             <button type="submit" class="btn primary">إرسال الرسالة</button>
-                        </form>
+                        </form>                     
                     </div>
                     <!-- Removed redundant success message div (if any existed before) -->
                     <!-- The old #form-status div is no longer used by the success logic in main.js -->
@@ -444,50 +432,13 @@
         </div>
     </section>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <img src="images/logo.png" alt="AGpro Logo" style="height: 40px; width: auto; margin-bottom: 10px;">
-                    <h2>Ahmed Ramadan</h2>
-                    <p>طالب في كلية الحاسبات والمعلومات</p>
-                </div>
-                <div class="footer-links">
-                    <h3>روابط سريعة</h3>
-                    <ul>
-                        <li><a href="index.html">الرئيسية</a></li>
-                        <li><a href="projects.html">المشاريع</a></li>
-                        <li><a href="about.html">من أنا</a></li>
-                        <li><a href="contact.html">تواصل معي</a></li>
-                    </ul>
-                </div>
-                <div class="footer-contact">
-                    <h3>معلومات التواصل</h3>
-                    <ul>
-                        <li><i class="fas fa-envelope"></i> ahmed.agpro@outlook.com</li>
-                        <li><i class="fas fa-phone"></i> +201225936568</li>
-                        <li><i class="fas fa-map-marker-alt"></i> أسيوط، مصر</li>
-                    </ul>
-                </div>
-                <div class="footer-social">
-                    <h3>تابعني</h3>
-                    <div class="social-icons">
-                        <a href="https://t.me/Ahm3d_AG" target="_blank"><i class="fab fa-telegram"></i></a>
-                        <a href="https://www.linkedin.com/in/ahmed-ramadan-abd-elrady-b01baa344" target="_blank"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://www.facebook.com/share/1BRoJ2PkUU/" target="_blank"><i class="fab fa-facebook"></i></a>
-                        <a href="https://www.instagram.com/ahmed____a__g?igsh=b2ozbmVhNzUwZDZ0" target="_blank"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 جميع الحقوق محفوظة , Ahmed Ramadan</p>
-            </div>
-        </div>
-    </footer>
+    <div id="footer-placeholder"></div>
 
     <!-- Google Analytics -->
     <script src="js/analytics.js"></script>
     <script src="js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 </html>
 

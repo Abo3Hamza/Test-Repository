@@ -58,87 +58,77 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // --- Contact form submission with AJAX and Success Message ---
+    // --- Contact form submission through EmailJS ---
     const contactForm = document.getElementById('contact-form');
-    //const successMessageEn = document.getElementById('contact-success-message-en');
-    //const successMessageAr = document.getElementById('contact-success-message-ar');
+    const EMAILJS_SERVICE_ID = 'service_5omaagh';
+    const EMAILJS_TEMPLATE_ID = 'template_mxs2stn';
+    const EMAILJS_PUBLIC_KEY = 'VmMqq2bf8awlQtmKt';
     
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent default form submission
-            
-            const formData = new FormData(contactForm);
             const submitButton = contactForm.querySelector('button[type="submit"]');
             const originalButtonText = submitButton.textContent;
             const isArabic = document.documentElement.lang === 'ar';
-            //const successMessageDiv = isArabic ? successMessageAr : successMessageEn;
+            const name = document.getElementById('name')?.value.trim() || '';
+            const email = document.getElementById('email')?.value.trim() || '';
+            const subjectValue = document.getElementById('subject')?.value.trim() || '';
+            const messageValue = document.getElementById('message')?.value.trim() || '';
+            const subject = subjectValue || (isArabic ? 'رسالة جديدة من موقعك الشخصي' : 'New message from your website');
 
-            // Disable button and show sending state
+            if (typeof emailjs === 'undefined') {
+                alert(isArabic ? 'تعذر تحميل خدمة الإرسال. حاول مرة أخرى لاحقاً.' : 'The sending service could not be loaded. Please try again later.');
+                return;
+            }
+
+            const captchaResponse = grecaptcha.getResponse();
+            if (captchaResponse.length === 0) {
+                alert("الرجاء التحقق من أنك لست روبوت.");
+                return;
+            }
+
+            // Disable button while sending the message
             submitButton.disabled = true;
-            submitButton.textContent = isArabic ? 'جار الإرسال...' : 'Sending...';
-            //if (successMessageDiv) successMessageDiv.classList.remove('visible'); // Hide previous message
+            submitButton.textContent = isArabic ? 'جارٍ الإرسال...' : 'Sending...';
 
-            fetch(contactForm.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    // Throw an error to be caught by the .catch block, but distinguish it
-                    return response.text().then(text => { // Try to get error text from server
-                       throw new Error(`HTTP error! status: ${response.status}, message: ${text || 'No error message'}`);
-                    });
-                }
-                // Check if the response has content before trying to parse as JSON
-                const contentType = response.headers.get("content-type");
-                if (contentType && contentType.indexOf("application/json") !== -1) {
-                    return response.json(); // Only parse if it's JSON
-                } else {
-                    // Handle non-JSON responses if expected (e.g., Formspree might redirect or send text)
-                    // Assume success if response.ok is true and it's not JSON
-                    return { ok: true }; // Simulate a successful structure if response.ok is true
-                }
-            })
-            .then(data => {
-                 // The check for FormSubmit might need adjustment based on actual successful response structure
-                 // Assuming 'ok: true' or a specific success field from the JSON data indicates success
-                if (data.ok || (data.success && data.success === "true")) {
-                    // Show success message
-                    // if (successMessageDiv) {
-                    //     successMessageDiv.classList.add('visible');
-                    // }
-                    contactForm.reset();  // Clear the form 
-                    // Hide success message after 8 seconds
-                    // open thank-you.html in this window
-                    window.location.href = isArabic ? 'thank-you.html' : 'en/thank-you.html';
-                    // setTimeout(() => {
-                    //     if (successMessageDiv) successMessageDiv.classList.remove('visible');
-                    // }, 8000);
-                } else {
-                    // Handle application-level errors (e.g., validation errors from the server in the JSON response)
-                    console.error('Application Error:', data);
-                    alert(isArabic ? 'حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.' : 'An error occurred while processing your request. Please try again.');
-                }
-            })
-            .catch(error => {
-                // Handle network errors AND the HTTP errors thrown earlier
-                console.error('Fetch Error:', error);
-                // Check if it's the HTTP error we threw
-                if (error.message.startsWith('HTTP error!')) {
-                     alert(isArabic ? 'حدث خطأ من جانب الخادم. يرجى المحاولة مرة أخرى لاحقاً.' : 'A server-side error occurred. Please try again later.');
-                } else {
-                    // Assume it's a network error
-                    alert(isArabic ? 'حدث خطأ في الشبكة. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.' : 'A network error occurred. Please check your internet connection and try again.');
-                }
-            })
-            .finally(() => {
-                // Re-enable button and restore text
-                submitButton.disabled = false;
-                submitButton.textContent = originalButtonText;
-            });
+            const templateParams = {
+                // 1. بيانات القالب الأساسي
+                from_name: name,
+                from_email: email,
+                subject: subject,
+                message: messageValue,
+                reply_to: email,
+                
+                time: new Date().toLocaleString(isArabic ? 'ar-EG' : 'en-US'), 
+
+                // 2. المتغيرات اللي هيستخدمها الـ Auto-Reply تلقائياً
+                dir: isArabic ? 'rtl' : 'ltr',
+                greeting_text: isArabic ? 'مرحباً' : 'Hi',
+                thank_you_text: isArabic 
+                    ? 'شكراً لتواصلك معنا! لقد استلمنا طلبك بخصوص:' 
+                    : 'Thank you for reaching out to us! We have received your request:',
+                process_text: isArabic 
+                    ? 'وسنبذل قصارى جهدنا للرد عليك في أقرب وقت.' 
+                    : 'and we\'ll do our best to process it as soon as possible.',
+                best_regards_text: isArabic ? 'أطيب التحيات،' : 'Best regards,',
+                team_name: isArabic ? 'أحمد رمضان' : 'Ahmed Ramadan',
+
+                'g-recaptcha-response': captchaResponse
+            };
+
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY)
+                .then(() => {
+                    contactForm.reset();
+                    window.location.href = 'thank-you.html';
+                })
+                .catch(() => {
+                    alert(isArabic ? 'حدث خطأ أثناء إرسال الرسالة. حاول مرة أخرى.' : 'There was an error sending your message. Please try again.');
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                    grecaptcha.reset();
+                });
         });
     }
 
@@ -225,6 +215,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             setTheme(newTheme);
         });
+    }
+
+    const footerPlaceholder = document.getElementById('footer-placeholder');
+    if (footerPlaceholder) {
+        const footerPath = 'footer.html';
+
+        fetch(footerPath)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('لم يتم العثور على ملف الفوتر');
+                }
+                return response.text();
+            })
+            .then(data => {
+                footerPlaceholder.innerHTML = data;
+            })
+            .catch(error => console.error('خطأ في تحميل الفوتر:', error));
     }
 
 });

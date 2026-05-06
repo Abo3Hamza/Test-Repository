@@ -32,7 +32,7 @@
         }
         
         .contact-form h2:after {
-            content: ";
+            content: '';
             position: absolute;
             bottom: 0;
             left: 0;
@@ -328,14 +328,7 @@
                 <div class="contact-form-container">
                     <div class="contact-form">
                         <h2>Send a Message</h2>
-                        <form id="contact-form" action="https://formsubmit.co/ahmed.agpro@outlook.com" method="POST">
-                            <!-- FormSubmit configuration -->
-                            <input type="hidden" name="_subject" value="New Message from Your Personal Website (EN)">
-                            <input type="hidden" name="_template" value="table">
-                            <input type="hidden" name="_captcha" value="false">
-                            <!-- Use AJAX, so _next is not needed here -->
-                            <!-- <input type="hidden" name="_next" value="https://temp0account.github.io/portfolio/en/contact.html"> -->
-                            <input type="hidden" name="_autoresponse" value="Thank you for contacting me. I will get back to you as soon as possible.">
+                        <form id="contact-form" action="#" method="POST">
 
                             <div class="form-group">
                                 <label for="name">Name</label>
@@ -357,12 +350,7 @@
                                 <textarea id="message" name="message" rows="5" required></textarea>
                             </div>
 
-                            <!-- Status Message Divs (added based on JS) -->
-                            <div id="contact-success-message-en" class="contact-success-message" style="--success-color: var(--success-color); --success-color-rgb: var(--success-color-rgb);">
-                                <p>Your message has been sent successfully! Thank you for contacting me.</p>
-                            </div>
-                            <!-- Add a similar div with id="contact-success-message-ar" in the Arabic version -->
-                            
+                            <div class="g-recaptcha" data-sitekey="6Leit9wsAAAAACVSfS6APu9kps9B-unmOl3oRin5"></div>
                             <button type="submit" class="btn primary">Send Message</button>
                         </form>
                     </div>
@@ -429,50 +417,13 @@
         </div>
     </section>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <img src="../images/logo.png" alt="AGpro Logo" style="height: 40px; width: auto; margin-bottom: 10px;">
-                    <h2>Ahmed Ramadan</h2>
-                    <p>Computer Science Student</p>
-                </div>
-                <div class="footer-links">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="../index.html">Home</a></li>
-                        <li><a href="../projects.html">Projects</a></li>
-                        <li><a href="../about.html">About Me</a></li>
-                        <li><a href="../contact.html">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-contact">
-                    <h3>Contact Information</h3>
-                    <ul>
-                        <li><i class="fas fa-envelope"></i> ahmed.agpro@outlook.com</li>
-                        <li><i class="fas fa-phone"></i> +201225936568</li>
-                        <li><i class="fas fa-map-marker-alt"></i> Assiut, Egypt</li>
-                    </ul>
-                </div>
-                <div class="footer-social">
-                    <h3>Follow Me</h3>
-                    <div class="social-icons">
-                        <a href="https://t.me/Ahm3d_AG" title="Telegram" target="_blank"><i class="fab fa-telegram"></i></a>
-                        <a href="https://www.instagram.com/ahmed____a__g" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.linkedin.com/in/ahmed-ramadan-abd-elrady-b01baa344" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://www.facebook.com/share/1BRoJ2PkUU/" title="Facebook" target="_blank"><i class="fab fa-facebook"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 All Rights Reserved , Ahmed Ramadan</p>
-            </div>
-        </div>
-    </footer>
+    <div id="footer-placeholder"></div>
 
     <!-- Google Analytics -->
     <script src="../js/analytics.js"></script>
     <script src="../js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 </html>
 
