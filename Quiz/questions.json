@@ -1,0 +1,590 @@
+[
+  {
+    "name": "Midterm General",
+    "description": "General Midterm Questions covering CPU architecture, ISA, addressing modes, and pipelining.",
+    "questions": [
+      {
+        "type": "choice",
+        "question": "Which component of the OS puts the executable into RAM and sets the PC?",
+        "question_ar": "أي مكون من نظام التشغيل يقوم بوضع البرنامج التنفيذي في الذاكرة (RAM) ويضبط عداد البرنامج (PC)؟",
+        "options": ["Compiler", "Control Unit", "Loader", "Assembler", "MAR"],
+        "options_ar": ["المترجم (Compiler)", "وحدة التحكم", "المُحمِّل (Loader)", "المُجمِّع (Assembler)", "سجل عناوين الذاكرة (MAR)"],
+        "correct_answer": 2,
+        "explanation": "The loader is responsible for loading programs and libraries into memory and preparing them for execution.",
+        "explanation_ar": "المُحمِّل (Loader) هو المسؤول عن وضع البرامج والمكتبات في الذاكرة وتجهيزها للتنفيذ."
+      },
+      {
+        "type": "choice",
+        "question": "For the equation X = (A + B) × C, how many memory accessing Push/Pop instructions are needed?",
+        "question_ar": "للمعادلة X = (A + B) × C، كم عدد تعليمات Push/Pop التي تصل للذاكرة ونحتاجها في معمارية المكدس؟",
+        "options": ["2", "3", "4", "5"],
+        "options_ar": ["2", "3", "4", "5"],
+        "correct_answer": 2,
+        "explanation": "You need 4 memory access instructions: Push A, Push B, Push C, and Pop X (to store the final result).",
+        "explanation_ar": "نحتاج إلى 4 تعليمات للوصول للذاكرة: Push A و Push B و Push C ثم Pop X (لتخزين النتيجة النهائية)."
+      },
+      {
+        "type": "choice",
+        "question": "If an ISA has auto-increment addressing, what does LOAD R1, (R2)+ do?",
+        "question_ar": "إذا كانت المعمارية تدعم العنونة بزيادة تلقائية، ماذا تفعل التعليمة LOAD R1, (R2)+؟",
+        "options": ["Load M[R2] into R1, then increment R2", "Increment R2, then load M[R2] into R1", "Load M[R2+4] into R1", "Load M[R2+1] into R1"],
+        "options_ar": ["تُحمل M[R2] إلى R1، ثم تزيد R2", "تزيد R2، ثم تُحمل M[R2] إلى R1", "تُحمل M[R2+4] إلى R1", "تُحمل M[R2+1] إلى R1"],
+        "correct_answer": 0,
+        "explanation": "The post-increment addressing mode fetches the value first, then increments the pointer.",
+        "explanation_ar": "نمط الزيادة اللاحقة (Post-increment) يجلب القيمة أولاً، ثم يزيد المؤشر."
+      },
+      {
+        "type": "choice",
+        "question": "What is the typical size of a MIPS/RISC-V instruction?",
+        "question_ar": "ما هو الحجم النموذجي للتعليمة في معمارية MIPS/RISC-V؟",
+        "options": ["8 bits", "16 bits", "32 bits", "Variable length", "None of the above"],
+        "options_ar": ["8 بت", "16 بت", "32 بت", "طول متغير", "لا شيء مما سبق"],
+        "correct_answer": 2,
+        "explanation": "RISC architectures like MIPS and standard RISC-V use fixed 32-bit instruction lengths to simplify decoding.",
+        "explanation_ar": "تستخدم معماريات RISC مثل MIPS تعليمات ثابتة بطول 32 بت لتسهيل عملية فك التشفير."
+      },
+      {
+        "type": "choice",
+        "question": "An ISA has up to 256 different opcodes and supports 3-operand instructions, the size of register file is 64 registers. What is the total size of the instruction in bits?",
+        "question_ar": "معمارية تدعم 256 تعليمة مختلفة وتدعم 3 معاملات (operands)، ويبلغ عدد السجلات 64. ما هو الحجم الكلي للتعليمة بالبتات؟",
+        "options": ["18", "24", "26", "32", "64"],
+        "options_ar": ["18", "24", "26", "32", "64"],
+        "correct_answer": 2,
+        "explanation": "Opcodes need 8 bits (2^8=256). 64 registers need 6 bits each. 3 operands * 6 bits = 18. Total: 18 + 8 = 26 bits.",
+        "explanation_ar": "نحتاج 8 بت لرمز التعليمة. ولكل سجل من الـ 64 نحتاج 6 بت. 3 معاملات × 6 بت = 18 بت. الإجمالي 18 + 8 = 26 بت."
+      },
+      {
+        "type": "choice",
+        "question": "What happens if a program is compiled for an x86 ISA but run on a MIPS CPU?",
+        "question_ar": "ماذا يحدث إذا تمت ترجمة برنامج لمعمارية x86 وتم تشغيله على معالج MIPS؟",
+        "options": ["Runs slower", "Allocated in a different location", "Gives a compiler error", "OS translates it", "Cannot run"],
+        "options_ar": ["يعمل ببطء", "يُحجز في مكان مختلف في الذاكرة", "يعطي خطأ برمجي", "نظام التشغيل يترجمه", "لا يمكن تشغيله"],
+        "correct_answer": 4,
+        "explanation": "Different ISAs have entirely different instruction encodings. Machine code compiled for x86 cannot be understood by a MIPS CPU.",
+        "explanation_ar": "تمتلك المعماريات المختلفة تشفيرات تعليمات مختلفة تماماً. لغة الآلة لـ x86 لا يمكن لمعالج MIPS فهمها."
+      },
+      {
+        "type": "choice",
+        "question": "An ISA that allows any instruction to access memory is typically classified as?",
+        "question_ar": "المعمارية التي تسمح لأي تعليمة بالوصول للذاكرة تُصنف عادةً كـ؟",
+        "options": ["RISC", "CISC", "Load/Store", "Von Neumann", "None of the above"],
+        "options_ar": ["RISC", "CISC", "Load/Store", "Von Neumann", "لا شيء مما سبق"],
+        "correct_answer": 1,
+        "explanation": "CISC architectures generally allow arithmetic and logic operations to access memory directly.",
+        "explanation_ar": "تسمح معمارية CISC عادةً لتعليمات الحساب والمنطق بالوصول المباشر للذاكرة."
+      },
+      {
+        "type": "choice",
+        "question": "Register indirect addressing of LOAD R1, (R2) is equivalent to Displacement Addressing LOAD R1, offset(R2) when?",
+        "question_ar": "متى يتساوى نمط العنونة غير المباشرة LOAD R1, (R2) مع العنونة بالإزاحة LOAD R1, offset(R2)؟",
+        "options": ["offset = 4", "R2 = 0", "offset = 0", "R1 = R2", "Never"],
+        "options_ar": ["عندما تكون الإزاحة = 4", "عندما يكون السجل الثاني = 0", "عندما تكون الإزاحة = 0", "عندما يكون السجل الأول = السجل الثاني", "أبداً"],
+        "correct_answer": 2,
+        "explanation": "If the displacement offset is 0, the CPU just uses the value in R2 as the address, matching register indirect mode.",
+        "explanation_ar": "إذا كانت الإزاحة (offset) تساوي صفر، يستخدم المعالج القيمة الموجودة في R2 كعنوان مباشرة، وهو نفس سلوك العنونة غير المباشرة."
+      },
+      {
+        "type": "choice",
+        "question": "How does an ISA support Relocatable Code?",
+        "question_ar": "كيف تدعم المعمارية (ISA) الشفرات القابلة للنقل (Relocatable Code)؟",
+        "options": ["By using absolute addressing for all jumps", "By using PC-relative addressing for branches", "By using only immediate operands", "By setting PC=PC+4 instead of PC=PC+1"],
+        "options_ar": ["باستخدام العنونة المطلقة لجميع القفزات", "باستخدام العنونة المرتبطة بعداد البرنامج (PC-relative) للتفرع", "باستخدام المعاملات الفورية فقط", "بزيادة الـ PC بمقدار 4 بدلاً من 1"],
+        "correct_answer": 1,
+        "explanation": "PC-relative addressing calculates addresses relative to the current instruction, meaning the code can be placed anywhere in memory.",
+        "explanation_ar": "تقوم العنونة المرتبطة بالـ PC بحساب العناوين بالنسبة للتعليمة الحالية، مما يعني إمكانية وضع البرنامج في أي مكان في الذاكرة."
+      },
+      {
+        "type": "choice",
+        "question": "What is the width of the CPU’s register, if the register field in an instruction is 6 bits wide?",
+        "question_ar": "ما هو عرض السجل (Register width) في المعالج، إذا كان حقل السجل في التعليمة يتكون من 6 بت؟",
+        "options": ["6 bits", "32 bits", "64 bits", "15 bits", "Cannot specify"],
+        "options_ar": ["6 بت", "32 بت", "64 بت", "15 بت", "لا يمكن التحديد"],
+        "correct_answer": 4,
+        "explanation": "The 6 bits only define the number of registers (2^6 = 64 registers). It does not tell us the data capacity (width) of those registers.",
+        "explanation_ar": "الـ 6 بت تحدد فقط عدد السجلات المتاحة للتعنون (64 سجل). ولا تحدد السعة التخزينية (العرض) لتلك السجلات."
+      },
+      {
+        "type": "choice",
+        "question": "Which tool converts assembly language into an object file containing machine code?",
+        "question_ar": "أي أداة تقوم بتحويل لغة التجميع (Assembly) إلى ملف كائن (Object File) يحتوي على لغة الآلة؟",
+        "options": ["Compiler", "Assembler", "Linker", "Loader", "Control Unit"],
+        "options_ar": ["المترجم (Compiler)", "المُجمِّع (Assembler)", "الرابط (Linker)", "المُحمِّل (Loader)", "وحدة التحكم"],
+        "correct_answer": 1,
+        "explanation": "The Assembler translates human-readable assembly instructions into machine code object files.",
+        "explanation_ar": "يقوم المُجمِّع (Assembler) بترجمة تعليمات التجميع إلى ملفات كائنات (Object Files) بلغة الآلة."
+      },
+      {
+        "type": "choice",
+        "question": "In Von-Neumann architecture, the Stored Program Concept is best described as?",
+        "question_ar": "في معمارية Von-Neumann، كيف يُوصف مفهوم البرنامج المُخزن (Stored Program) بأفضل شكل؟",
+        "options": ["Separate memories for instructions and data", "Instructions and data are stored in the same memory", "Programs are stored inside CPU registers only", "Instructions are hardwired into the CPU"],
+        "options_ar": ["ذواكر منفصلة للتعليمات والبيانات", "التعليمات والبيانات يتم تخزينها في نفس الذاكرة", "تُخزن البرامج داخل سجلات المعالج فقط", "التعليمات مبرمجة في المكونات الصلبة للمعالج"],
+        "correct_answer": 1,
+        "explanation": "Von Neumann architecture uses a single shared memory space for both executable instructions and data.",
+        "explanation_ar": "تستخدم معمارية فون نيومان مساحة ذاكرة واحدة مشتركة لتخزين كل من التعليمات التنفيذية والبيانات."
+      },
+      {
+        "type": "choice",
+        "question": "In a 64-bit architecture with byte-addressable memory, what is the address of the next word if the current is 0x1002?",
+        "question_ar": "في معمارية 64-بت بذاكرة تدعم عنونة البايت، ما هو عنوان الكلمة (word) التالية إذا كان العنوان الحالي هو 0x1002؟",
+        "options": ["0x1003", "0x1006", "0x1008", "0x1010"],
+        "options_ar": ["0x1003", "0x1006", "0x1008", "0x1010"],
+        "correct_answer": 2,
+        "explanation": "A 64-bit architecture uses 8-byte words. Word boundaries are aligned to multiples of 8. The next boundary after 0x1002 is 0x1008.",
+        "explanation_ar": "معمارية 64 بت تستخدم كلمات بحجم 8 بايت. يجب محاذاة العناوين لمضاعفات الرقم 8. أول عنوان يحقق ذلك بعد 0x1002 هو 0x1008."
+      },
+      {
+        "type": "choice",
+        "question": "In a Load-Store architecture, the ADD instruction:",
+        "question_ar": "في معمارية التحميل/التخزين (Load-Store)، تعليمة الجمع (ADD):",
+        "options": ["Can have one operand in memory", "Must have all operands in memory", "Must have all operands in registers", "Is only used for address calculation"],
+        "options_ar": ["يمكن أن يكون لها معامل واحد في الذاكرة", "يجب أن تكون كل المعاملات في الذاكرة", "يجب أن تكون كل المعاملات في السجلات", "تستخدم فقط لحساب العناوين"],
+        "correct_answer": 2,
+        "explanation": "Load-Store ISAs (like RISC) strictly require ALU operations to only manipulate data present inside CPU registers.",
+        "explanation_ar": "تتطلب معماريات التحميل/التخزين بصرامة أن تنفذ عمليات الحساب والمنطق فقط على البيانات الموجودة داخل سجلات المعالج."
+      },
+      {
+        "type": "choice",
+        "question": "Why does CISC code typically have a smaller code size on disk?",
+        "question_ar": "لماذا تكون أحجام برامج معمارية CISC عادةً أصغر حجماً على القرص؟",
+        "options": ["Because instructions are simpler", "Because a single instruction can perform the work of many simple ones", "Because the ISA usually has smaller size instructions", "Because it uses more registers", "Because it uses fixed size instructions"],
+        "options_ar": ["لأن التعليمات أبسط", "لأن تعليمة واحدة يمكنها أداء عمل عدة تعليمات بسيطة", "لأن المعمارية تحتوي غالباً على تعليمات أصغر حجماً", "لأنها تستخدم سجلات أكثر", "لأنها تستخدم تعليمات ذات حجم ثابت"],
+        "correct_answer": 1,
+        "explanation": "CISC packs complex operations (like memory fetches, arithmetic, and storing) into a single instruction, reducing the total instruction count.",
+        "explanation_ar": "تجمع معمارية CISC العمليات المعقدة في تعليمة واحدة (مثل القراءة، الحساب، والتخزين معاً)، مما يقلل من عدد التعليمات الكلي للبرنامج."
+      },
+      {
+        "type": "choice",
+        "question": "Which addressing mode is most efficient for accessing a fixed memory variable?",
+        "question_ar": "أي نمط عنونة هو الأكثر كفاءة للوصول إلى متغير ثابت في الذاكرة؟",
+        "options": ["Immediate addressing", "Direct addressing", "Indirect addressing", "Displacement addressing", "None of them"],
+        "options_ar": ["العنونة الفورية", "العنونة المباشرة", "العنونة غير المباشرة", "العنونة بالإزاحة", "لا شيء مما سبق"],
+        "correct_answer": 1,
+        "explanation": "Direct addressing supplies the exact memory address in the instruction itself, skipping pointer calculations.",
+        "explanation_ar": "توفر العنونة المباشرة عنوان الذاكرة الدقيق في التعليمة نفسها، مما يتجاوز الحاجة لعمليات حساب المؤشرات."
+      }
+    ]
+  },
+  {
+    "name": "Midterm National",
+    "description": "National Midterm assessing standard architecture limits, ISAs, and performance metrics.",
+    "questions": [
+      {
+        "type": "choice",
+        "question": "A 3-operand register-register ISA has 128 registers. The opcode is 8 bits. The minimum instruction length is:",
+        "question_ar": "معمارية بـ 3 معاملات (سجل-سجل) تحتوي على 128 سجلاً، وشيفرة العملية (Opcode) 8 بت. الحد الأدنى لطول التعليمة هو:",
+        "options": ["24 bits", "29 bits", "32 bits", "21 bits"],
+        "options_ar": ["24 بت", "29 بت", "32 بت", "21 بت"],
+        "correct_answer": 1,
+        "explanation": "128 registers need 7 bits each. 3 operands * 7 = 21 bits. 21 + 8 (opcode) = 29 bits.",
+        "explanation_ar": "128 سجل تتطلب 7 بت لكل منها. 3 معاملات × 7 بت = 21 بت. نجمع معها 8 بت لرمز العملية = 29 بت."
+      },
+      {
+        "type": "choice",
+        "question": "If an instruction is R1, R2, this is:",
+        "question_ar": "إذا كانت التعليمة تستخدم المعاملات R1, R2، فهذا يسمى:",
+        "options": ["Register Addressing", "Immediate Addressing", "Memory Addressing", "PC-Relative Addressing"],
+        "options_ar": ["عنونة السجلات (Register Addressing)", "العنونة الفورية", "عنونة الذاكرة", "عنونة مرتبطة بالـ PC"],
+        "correct_answer": 0,
+        "explanation": "Both operands are registers, indicating pure register addressing mode.",
+        "explanation_ar": "كلا المعاملين عبارة عن سجلات، مما يدل على نمط عنونة السجلات."
+      },
+      {
+        "type": "choice",
+        "question": "In a 0-operand architecture, the instruction ADD automatically uses:",
+        "question_ar": "في معمارية الصفر-معامل (0-operand)، تعليمة ADD تستخدم تلقائياً:",
+        "options": ["The Accumulator", "Two Registers", "The top two values of the stack", "Two memory locations"],
+        "options_ar": ["المركم (Accumulator)", "سجلين", "أعلى قيمتين في المكدس (Stack)", "موقعين في الذاكرة"],
+        "correct_answer": 2,
+        "explanation": "0-operand ISAs are Stack architectures; instructions inherently operate on the top items of the stack.",
+        "explanation_ar": "معمارية الـ 0-operand هي معمارية مكدس، والعمليات تُجرى تلقائياً على القيمتين الموجودتين في قمة المكدس."
+      },
+      {
+        "type": "choice",
+        "question": "If we increase the number of registers from 32 to 64, what is the primary negative impact on the ISA?",
+        "question_ar": "إذا قمنا بزيادة عدد السجلات من 32 إلى 64، ما هو التأثير السلبي الأساسي على المعمارية؟",
+        "options": ["The CPU becomes slower", "The size of the address bus must increase to 64 bits", "The instruction length must increase", "Memory becomes slower"],
+        "options_ar": ["تصبح وحدة المعالجة المركزية أبطأ", "يجب زيادة ناقل العناوين إلى 64 بت", "يجب أن يزداد طول التعليمة", "تصبح الذاكرة أبطأ"],
+        "correct_answer": 2,
+        "explanation": "32 registers require 5 bits per operand. 64 registers require 6 bits. This extra bit requirement per operand increases instruction length.",
+        "explanation_ar": "32 سجلاً تحتاج 5 بت لكل معامل، بينما 64 سجلاً تحتاج 6 بت. هذه الزيادة تتطلب حجماً أكبر للتعليمة ككل."
+      },
+      {
+        "type": "choice",
+        "question": "Which addressing mode is used in the instruction: LOAD R1, #500",
+        "question_ar": "ما هو نمط العنونة المستخدم في التعليمة: LOAD R1, #500 ؟",
+        "options": ["Direct", "Register Indirect", "Immediate", "Displacement"],
+        "options_ar": ["مباشرة", "عنونة سجلات غير مباشرة", "فورية (Immediate)", "عنونة بالإزاحة"],
+        "correct_answer": 2,
+        "explanation": "The '#' symbol traditionally denotes an immediate, constant value embedded in the instruction.",
+        "explanation_ar": "الرمز '#' يدل عادة على أن القيمة هي قيمة ثابتة فورية (Immediate) داخل التعليمة."
+      },
+      {
+        "type": "choice",
+        "question": "In a newly designed ISA, the instruction ADD R1, R2, R3 results in:",
+        "question_ar": "في معمارية مُصممة حديثاً، تعليمة ADD R1, R2, R3 تؤدي إلى:",
+        "options": ["(R1 = R2 + R3)", "(R3 = R1 + R2)", "(Memory[R1] = R2 + R3)", "Both A and B are possible depending on ISA design"],
+        "options_ar": ["(R1 = R2 + R3)", "(R3 = R1 + R2)", "(Memory[R1] = R2 + R3)", "كلا الاحتمالين الأول والثاني وارد حسب تصميم المعمارية"],
+        "correct_answer": 3,
+        "explanation": "Different ISAs handle the order of operands differently. MIPS uses Dest, Src1, Src2 (A), but others may use Src1, Src2, Dest (B).",
+        "explanation_ar": "تختلف المعماريات في ترتيب المعاملات، بعضها يضع سجل الوجهة في البداية والبعض الآخر يضعه في النهاية."
+      },
+      {
+        "type": "choice",
+        "question": "A word in a 32-bit architecture usually consists of:",
+        "question_ar": "الكلمة (Word) في معمارية 32-بت تتكون عادةً من:",
+        "options": ["4 bits", "8 bits", "32 bits", "64 bits"],
+        "options_ar": ["4 بت", "8 بت", "32 بت", "64 بت"],
+        "correct_answer": 2,
+        "explanation": "A 'word' is generally equal to the primary data path size of the architecture, which is 32 bits.",
+        "explanation_ar": "الكلمة تعادل حجم مسار البيانات الرئيسي للمعمارية، وهو هنا 32 بت."
+      },
+      {
+        "type": "choice",
+        "question": "RISC architectures are characterized by:",
+        "question_ar": "تتميز معماريات RISC بـ:",
+        "options": ["Variable-length instructions", "Sophisticated instructions", "Direct memory-to-memory operations", "Fixed-length instructions and load-store logic"],
+        "options_ar": ["تعليمات متغيرة الطول", "تعليمات معقدة للغاية", "عمليات مباشرة من الذاكرة للذاكرة", "تعليمات ثابتة الطول ومنطق تحميل/تخزين"],
+        "correct_answer": 3,
+        "explanation": "RISC utilizes simplicity for speed: fixed length commands and confining memory access only to load/store operations.",
+        "explanation_ar": "تعتمد RISC على البساطة لزيادة السرعة، حيث تستخدم تعليمات ثابتة الطول وتقتصر عمليات الذاكرة على التحميل والتخزين."
+      },
+      {
+        "type": "choice",
+        "question": "Why do compilers prefer a large, symmetric general-purpose register set?",
+        "question_ar": "لماذا تفضل المترجمات (Compilers) وجود مجموعة كبيرة ومتماثلة من السجلات العامة؟",
+        "options": ["It makes instruction decoding harder", "It simplifies register allocation algorithms", "It reduces the number of instructions in the ISA", "It makes the CPU clock faster"],
+        "options_ar": ["تجعل فك تشفير التعليمات أصعب", "تبسط خوارزميات تخصيص السجلات", "تقلل من عدد التعليمات في المعمارية", "تزيد من سرعة ساعة المعالج"],
+        "correct_answer": 1,
+        "explanation": "Symmetric registers allow compilers to assign variables without worrying about specialized register bottlenecks.",
+        "explanation_ar": "تسمح السجلات المتماثلة للمترجم بتخصيص المتغيرات دون القلق بشأن قيود السجلات المخصصة لأغراض معينة."
+      },
+      {
+        "type": "choice",
+        "question": "How many registers can be addressed if the register field in an instruction is 6 bits wide?",
+        "question_ar": "كم عدد السجلات التي يمكن عنونتها إذا كان حقل السجل في التعليمة بعرض 6 بت؟",
+        "options": ["32", "64", "16", "Cannot specify"],
+        "options_ar": ["32", "64", "16", "لا يمكن التحديد"],
+        "correct_answer": 1,
+        "explanation": "2 raised to the power of 6 equals 64.",
+        "explanation_ar": "العدد 2 مرفوع للقوة 6 يساوي 64 سجلاً."
+      },
+      {
+        "type": "choice",
+        "question": "An instruction: LOAD R1, 100(R2) is used. If: R2 = 500, Memory[500] = 15, Memory[600] = 75. What is R1 after execution?",
+        "question_ar": "تم استخدام التعليمة LOAD R1, 100(R2). إذا كان R2=500 والذاكرة [500]=15 والذاكرة [600]=75. ما هي قيمة R1 بعد التنفيذ؟",
+        "options": ["250", "650", "600", "75"],
+        "options_ar": ["250", "650", "600", "75"],
+        "correct_answer": 3,
+        "explanation": "Effective Address = 500 + 100 = 600. So R1 loads the data at Memory[600], which is 75.",
+        "explanation_ar": "العنوان الفعلي = 500 + 100 = 600. إذن السجل R1 سيُحمل القيمة الموجودة في الذاكرة [600] وهي 75."
+      },
+      {
+        "type": "choice",
+        "question": "Which address mode is most suitable for implementing a switch-case statement?",
+        "question_ar": "أي نمط عنونة هو الأنسب لتنفيذ جملة switch-case؟",
+        "options": ["Immediate", "Direct", "Displacement", "Register Indirect"],
+        "options_ar": ["فورية", "مباشرة", "بالإزاحة", "عنونة سجلات غير مباشرة (Register Indirect)"],
+        "correct_answer": 3,
+        "explanation": "Register Indirect (or Base-indexed) allows dynamic fetching from a jump table based on the case variable.",
+        "explanation_ar": "تسمح العنونة غير المباشرة بجلب البيانات ديناميكياً من جدول قفزات (Jump Table) بناءً على قيمة المتغير في الـ case."
+      },
+      {
+        "type": "choice",
+        "question": "A CISC instruction takes 8 cycles. A RISC equivalent takes 4 instructions, each requiring 1 cycle. Which is faster and by how much?",
+        "question_ar": "تعليمة CISC تستهلك 8 دورات. التعليمة المكافئة في RISC تستغرق 4 تعليمات، كل منها دورة واحدة. أيهما أسرع وبكم؟",
+        "options": ["CISC is 2x faster", "RISC is 2x faster", "RISC is 4x faster", "CISC is 8x slower"],
+        "options_ar": ["CISC أسرع بمرتين", "RISC أسرع بمرتين", "RISC أسرع بـ 4 مرات", "CISC أبطأ بـ 8 مرات"],
+        "correct_answer": 1,
+        "explanation": "RISC takes 4 cycles total. CISC takes 8. 8 / 4 = 2. So RISC is twice as fast.",
+        "explanation_ar": "معمارية RISC تستغرق 4 دورات بينما CISC تستغرق 8 دورات. 8 تقسيم 4 = 2، إذن RISC أسرع مرتين."
+      },
+      {
+        "type": "choice",
+        "question": "Which statement is true regarding RISC vs CISC?",
+        "question_ar": "أي عبارة صحيحة فيما يخص المقارنة بين RISC و CISC؟",
+        "options": ["RISC has more complex decoding logic", "CISC usually has a lower instruction count for the same program", "CISC architecture is always faster", "RISC instructions are variable length"],
+        "options_ar": ["RISC لديها منطق فك تشفير أكثر تعقيداً", "CISC عادةً تمتلك عدد تعليمات أقل لنفس البرنامج", "معمارية CISC دائماً أسرع", "تعليمات RISC متغيرة الطول"],
+        "correct_answer": 1,
+        "explanation": "CISC packs more logic into single instructions, inherently reducing the total number of instructions per program.",
+        "explanation_ar": "تجمع معمارية CISC منطقاً أكبر داخل التعليمة الواحدة، مما يقلل من عدد التعليمات الإجمالي للبرنامج."
+      },
+      {
+        "type": "choice",
+        "question": "In the assembly instruction: beq R1, R5, Label; what is 'Label'?",
+        "question_ar": "في تعليمة التجميع: beq R1, R5, Label؛ ماذا تمثل كلمة 'Label'؟",
+        "options": ["A direct memory address", "An indirect memory address", "A type of variable", "A human-readable name of a memory location"],
+        "options_ar": ["عنوان ذاكرة مباشر", "عنوان ذاكرة غير مباشر", "نوع من المتغيرات", "اسم قابل للقراءة البشرية لموقع في الذاكرة"],
+        "correct_answer": 3,
+        "explanation": "Labels are pseudo-addresses used to make code readable; the assembler translates them into offsets or real addresses.",
+        "explanation_ar": "الـ Labels هي أسماء تُستخدم لجعل الشفرة البرمجية قابلة للقراءة؛ ويقوم المُجمِّع (Assembler) بترجمتها إلى إزاحات أو عناوين حقيقية."
+      },
+      {
+        "type": "choice",
+        "question": "The Program Counter (PC) holds the:",
+        "question_ar": "عداد البرنامج (PC) يحتفظ بـ:",
+        "options": ["Address of the next instruction to be fetched", "Address of the current instruction being executed", "Data being processed by the ALU", "Number of instructions executed so far"],
+        "options_ar": ["عنوان التعليمة التالية المراد جلبها", "عنوان التعليمة الحالية قيد التنفيذ", "البيانات التي تتم معالجتها بواسطة الـ ALU", "عدد التعليمات التي تم تنفيذها حتى الآن"],
+        "correct_answer": 0,
+        "explanation": "The Program Counter continually points ahead to the location in memory of the next instruction.",
+        "explanation_ar": "عداد البرنامج يشير دائماً إلى موقع التعليمة التالية المقرر جلبها من الذاكرة."
+      }
+    ]
+  },
+  {
+    "name": "Final National",
+    "description": "Comprehensive Final Exam evaluating caches, pipelines, speedup formulas, and structural hazards.",
+    "questions": [
+      {
+        "type": "choice",
+        "question": "A set associative cache with 4 blocks per set is called:",
+        "question_ar": "ذاكرة التخزين المؤقت (Cache) من النوع التجميعي المترابط (Set associative) التي تحتوي على 4 كتل (Blocks) لكل مجموعة تُسمى:",
+        "options": ["Direct mapped", "4-way set-associative", "Fully associative", "Page based", "Multi-level"],
+        "options_ar": ["تعيين مباشر (Direct mapped)", "ترابطي لمجموعة من 4 طرق (4-way set-associative)", "ترابطي بالكامل (Fully associative)", "قائمة على الصفحات (Page based)", "متعددة المستويات"],
+        "correct_answer": 1,
+        "explanation": "N blocks per set corresponds to an N-way set-associative cache design.",
+        "explanation_ar": "وجود N من الكتل لكل مجموعة يعني أن التصميم هو N-way set-associative."
+      },
+      {
+        "type": "choice",
+        "question": "If a system is byte addressable, what is the next consecutive byte address after 0x1000?",
+        "question_ar": "إذا كان النظام يدعم عنونة البايت (Byte addressable)، ما هو عنوان البايت المتتالي التالي بعد العنوان 0x1000؟",
+        "options": ["0x1004", "0x1008", "0x1001", "0x2000", "0x1002"],
+        "options_ar": ["0x1004", "0x1008", "0x1001", "0x2000", "0x1002"],
+        "correct_answer": 2,
+        "explanation": "In a byte addressable memory, each individual byte has its own address incrementing by 1.",
+        "explanation_ar": "في الذاكرة التي تعنون بالبايت، يمتلك كل بايت عنواناً مستقلاً يزيد بمقدار 1."
+      },
+      {
+        "type": "choice",
+        "question": "A CPU has a CPI of 1.5 with a perfect cache. If the miss rate is 2%, the miss penalty is 100 cycles, and there are 1.2 memory accesses per instruction, what is the actual CPI?",
+        "question_ar": "معالج لديه CPI=1.5 مع كاش مثالي. إذا كان معدل الإخفاق (Miss rate) هو 2%، وغرامة الإخفاق (Miss penalty) 100 دورة، ويوجد 1.2 عملية وصول للذاكرة لكل تعليمة، ما هو الـ CPI الفعلي؟",
+        "options": ["1.5", "2.4", "3.9", "8.5", "1.7"],
+        "options_ar": ["1.5", "2.4", "3.9", "8.5", "1.7"],
+        "correct_answer": 2,
+        "explanation": "Actual CPI = Base CPI + (Mem Access/Inst * Miss Rate * Penalty) = 1.5 + (1.2 * 0.02 * 100) = 3.9.",
+        "explanation_ar": "الـ CPI الفعلي = الأساسي + (عدد مرات الوصول للذاكرة * معدل الإخفاق * الغرامة) = 1.5 + (1.2 * 0.02 * 100) = 3.9."
+      },
+      {
+        "type": "choice",
+        "question": "Which of the following is an ISA feature visible to the programmer?",
+        "question_ar": "أي مما يلي يُعد من ميزات المعمارية (ISA) وتكون مرئية للمبرمج؟",
+        "options": ["Number of cache levels", "The clock frequency", "The pipeline depth", "Number of general-purpose registers", "Transistor count"],
+        "options_ar": ["عدد مستويات الكاش", "تردد الساعة", "عمق خط الأنابيب (Pipeline depth)", "عدد السجلات العامة", "عدد الترانزستورات"],
+        "correct_answer": 3,
+        "explanation": "The ISA defines the logical layout of the machine, including registers which assembly programmers directly manipulate.",
+        "explanation_ar": "تحدد الـ ISA التخطيط المنطقي للآلة، بما في ذلك السجلات التي يستخدمها مبرمجو لغة التجميع بشكل مباشر."
+      },
+      {
+        "type": "choice",
+        "question": "A computer's clock cycle is 250 picoseconds. What is the clock rate?",
+        "question_ar": "دورة ساعة الحاسوب هي 250 بيكو ثانية. ما هو معدل الساعة (Clock rate)؟",
+        "options": ["1 GHz", "2 GHz", "4 GHz", "8 MHz", "400 MHz"],
+        "options_ar": ["1 جيجا هرتز", "2 جيجا هرتز", "4 جيجا هرتز", "8 ميجا هرتز", "400 ميجا هرتز"],
+        "correct_answer": 2,
+        "explanation": "Rate = 1 / 250ps = 1 / (250 * 10^-12) = 4 * 10^9 Hz = 4 GHz.",
+        "explanation_ar": "المعدل = 1 تقسيم 250 بيكو ثانية = 4 جيجا هرتز."
+      },
+      {
+        "type": "choice",
+        "question": "Spatial locality refers to the tendency of a program to:",
+        "question_ar": "محلية المكان (Spatial locality) تشير إلى ميل البرنامج إلى:",
+        "options": ["Use the same data item repeatedly in a short time", "Access data items whose addresses are near one another"],
+        "options_ar": ["استخدام نفس عنصر البيانات بشكل متكرر في وقت قصير", "الوصول إلى عناصر بيانات ذات عناوين قريبة من بعضها البعض"],
+        "correct_answer": 1,
+        "explanation": "Accessing nearby memory addresses is spatial locality; repeatedly accessing the exact same address is temporal locality.",
+        "explanation_ar": "الوصول لعناوين ذاكرة قريبة من بعضها يُسمى محلية المكان؛ بينما الوصول لنفس العنوان بشكل متكرر يسمى محلية الزمان."
+      },
+      {
+        "type": "choice",
+        "question": "Which component is responsible for choosing which cache block to discard during a miss?",
+        "question_ar": "أي مكون هو المسؤول عن اختيار كتلة الكاش التي سيتم استبعادها عند حدوث إخفاق (Cache miss)؟",
+        "options": ["ALU", "Loader", "Replacement Policy", "Compiler", "Assembler"],
+        "options_ar": ["وحدة الحساب والمنطق (ALU)", "المُحمِّل", "سياسة الاستبدال (Replacement Policy)", "المترجم", "المُجمِّع"],
+        "correct_answer": 2,
+        "explanation": "The Cache Replacement Policy (like LRU, FIFO) dictates block eviction logic in hardware.",
+        "explanation_ar": "تحدد سياسة استبدال الكاش (مثل LRU و FIFO) آلية طرد الكتل داخل الهاردوير."
+      },
+      {
+        "type": "choice",
+        "question": "Which architecture is most common in x86?",
+        "question_ar": "أي معمارية هي الأكثر شيوعاً في معالجات x86؟",
+        "options": ["RISC", "CISC", "Stack", "Accumulator", "Harvard"],
+        "options_ar": ["RISC", "CISC", "Stack", "Accumulator", "Harvard"],
+        "correct_answer": 1,
+        "explanation": "x86 is the quintessential Complex Instruction Set Computer (CISC) architecture.",
+        "explanation_ar": "تعتبر معمارية x86 هي المثال الأبرز على أجهزة الحوسبة ذات التعليمات المعقدة (CISC)."
+      },
+      {
+        "type": "choice",
+        "question": "A 2-operand SUB R1, R2 instruction usually means:",
+        "question_ar": "تعليمة SUB R1, R2 ذات المعاملين تعني عادةً:",
+        "options": ["R1 = R1 - R2", "R2 = R2 - R1", "R1 = R1 Memory [R1]", "Memory[R1] = R2", "Both A and B"],
+        "options_ar": ["R1 = R1 - R2", "R2 = R2 - R1", "R1 = R1 Memory [R1]", "Memory[R1] = R2", "كلاهما (أ) و (ب)"],
+        "correct_answer": 0,
+        "explanation": "In 2-operand syntax, the first operand typically acts as both the destination and the first source variable.",
+        "explanation_ar": "في المعماريات ذات المعاملين، يعمل المعامل الأول عادة كوجهة للنتيجة وكمعامل مصدر أول في نفس الوقت."
+      },
+      {
+        "type": "choice",
+        "question": "A stall in the pipeline:",
+        "question_ar": "التعطيل (Stall) في خط الأنابيب (Pipeline):",
+        "options": ["Increases clock speed", "Is caused by compiler", "Happens only in CISC", "Reduces IPC", "Prevents subsequent instructions from proceeding"],
+        "options_ar": ["يزيد من سرعة الساعة", "يسببه المترجم", "يحدث فقط في CISC", "يقلل من الـ IPC", "يمنع التعليمات اللاحقة من التقدم"],
+        "correct_answer": 4,
+        "explanation": "A pipeline stall pauses the execution flow, effectively preventing the instructions behind it from moving forward until hazards clear.",
+        "explanation_ar": "تعطيل خط الأنابيب يوقف تدفق التنفيذ، مما يمنع التعليمات اللاحقة من التقدم حتى يتم حل المشكلة (Hazard)."
+      },
+      {
+        "type": "choice",
+        "question": "If an enhancement speeds up by 10x, but that task is only performed 10% of the time, what is the total speedup?",
+        "question_ar": "إذا أدى تحسين إلى تسريع عملية بمقدار 10 أضعاف، ولكن هذه العملية تحدث فقط 10% من الوقت، فما هو إجمالي التسريع؟",
+        "options": ["6x", "5x", "1.1x", "2x", "1.5x"],
+        "options_ar": ["6x", "5x", "1.1x", "2x", "1.5x"],
+        "correct_answer": 2,
+        "explanation": "Amdahl's Law: Total Speedup = 1 / ((1 - 0.1) + (0.1 / 10)) = 1 / 0.91 = 1.0989 ≈ 1.1x.",
+        "explanation_ar": "حسب قانون أمدال: التسريع الإجمالي = 1 / ((1 - 0.1) + (0.1 / 10)) = 1 / 0.91 ≈ 1.1 ضعف."
+      },
+      {
+        "type": "choice",
+        "question": "A branch prediction unit helps mitigate:",
+        "question_ar": "وحدة التنبؤ بالتفرع (Branch prediction unit) تساعد في التخفيف من:",
+        "options": ["Data hazard", "Control hazard", "Structural hazard", "Cache miss", "Floating-point errors"],
+        "options_ar": ["مخاطر البيانات (Data hazard)", "مخاطر التحكم (Control hazard)", "المخاطر الهيكلية (Structural hazard)", "إخفاق الكاش (Cache miss)", "أخطاء النقطة العائمة"],
+        "correct_answer": 1,
+        "explanation": "Branch predictors attempt to guess whether jumps will occur, specifically resolving Control hazards in pipelined CPUs.",
+        "explanation_ar": "تحاول وحدات التنبؤ تخمين مسار القفزات، مما يحل تحديداً مشكلة مخاطر التحكم في المعالجات ذات خطوط الأنابيب."
+      },
+      {
+        "type": "choice",
+        "question": "Which cache mapping is most flexible but also the slowest and most expensive to implement?",
+        "question_ar": "أي تخطيط للكاش (Cache mapping) يُعد الأكثر مرونة ولكنه الأبطأ والأكثر تكلفة في التنفيذ؟",
+        "options": ["Direct mapping", "2-way", "Fully associative", "8-way", "Page-Table"],
+        "options_ar": ["التعيين المباشر", "مترابط بطريقتين (2-way)", "ترابطي بالكامل (Fully associative)", "مترابط بـ 8 طرق", "جدول الصفحات"],
+        "correct_answer": 2,
+        "explanation": "Fully Associative caches allow a block to map to ANY line, but require checking all tags concurrently (expensive hardware).",
+        "explanation_ar": "يسمح الكاش الترابطي بالكامل بوضع الكتلة في أي سطر، لكنه يتطلب التحقق من جميع العلامات (Tags) في وقت واحد وهو أمر مكلف برمجياً وعتادياً."
+      },
+      {
+        "type": "choice",
+        "question": "In the standard 5-stage MIPS pipeline, what happens during the ID (Instruction Decode) stage?",
+        "question_ar": "في خط أنابيب MIPS القياسي المكون من 5 مراحل، ماذا يحدث خلال مرحلة الـ ID (Instruction Decode)؟",
+        "options": ["Instruction Fetch", "Instruction Decode", "ALU performs operation", "Result write back", "Data read from data cache"],
+        "options_ar": ["جلب التعليمة", "فك تشفير التعليمة", "تقوم وحدة الحساب والمنطق بالعملية", "كتابة النتيجة", "قراءة البيانات من كاش البيانات"],
+        "correct_answer": 1,
+        "explanation": "During ID, the CPU decodes the instruction format and reads required values from the register file.",
+        "explanation_ar": "خلال هذه المرحلة، يقوم المعالج بفك تشفير صيغة التعليمة وقراءة القيم المطلوبة من ملف السجلات."
+      },
+      {
+        "type": "choice",
+        "question": "In case of a cache hit, the write-back policy updates:",
+        "question_ar": "في حالة الإصابة (Cache hit)، تقوم سياسة الكتابة الخلفية (Write-back) بتحديث:",
+        "options": ["Both main memory immediately", "Only the cache", "Only the main memory", "Only the register", "Only when a page fault occurs"],
+        "options_ar": ["الذاكرة الرئيسية مباشرة معاً", "الكاش فقط", "الذاكرة الرئيسية فقط", "السجل فقط", "فقط عند حدوث خطأ في الصفحة"],
+        "correct_answer": 1,
+        "explanation": "Write-back defers main memory updates by changing the cache only, marking the block as 'dirty'. Main memory updates only when evicted.",
+        "explanation_ar": "تؤجل هذه السياسة تحديث الذاكرة الرئيسية وتحدث الكاش فقط، وتقوم بتحديث الذاكرة فقط عندما يتم طرد الكتلة من الكاش."
+      },
+      {
+        "type": "choice",
+        "question": "The Von Neumann bottleneck is a throughput limit between:",
+        "question_ar": "عنق الزجاجة لفون نيومان (Von Neumann bottleneck) هو حد لإنتاجية النقل (throughput) بين:",
+        "options": ["ALU → Register", "CPU → Memory", "Linker → Loader", "Keyboard → CPU", "L1 and L2 caches"],
+        "options_ar": ["وحدة الحساب والسجل", "المعالج والذاكرة", "الرابط والمُحمِّل", "لوحة المفاتيح والمعالج", "كاش L1 وكاش L2"],
+        "correct_answer": 1,
+        "explanation": "The shared bus architecture inherently restricts how fast the CPU can pull instructions and data from Main Memory.",
+        "explanation_ar": "بنية الناقل المشترك تقيد بشكل كبير السرعة التي يستطيع بها المعالج سحب التعليمات والبيانات من الذاكرة الرئيسية."
+      },
+      {
+        "type": "choice",
+        "question": "Which tool translates high-level code into assembly language?",
+        "question_ar": "أي أداة تترجم الشفرة عالية المستوى إلى لغة التجميع (Assembly)؟",
+        "options": ["Compiler", "Assembler", "Loader", "Linker"],
+        "options_ar": ["المترجم (Compiler)", "المُجمِّع (Assembler)", "المُحمِّل (Loader)", "الرابط (Linker)"],
+        "correct_answer": 0,
+        "explanation": "The Compiler drops C/C++ (etc) down to architecture-specific Assembly instructions.",
+        "explanation_ar": "يقوم المترجم بتبسيط لغات مثل C/C++ إلى تعليمات لغة التجميع الخاصة بمعمارية معينة."
+      },
+      {
+        "type": "choice",
+        "question": "The tag field stored in cache is used to:",
+        "question_ar": "يُستخدم حقل العلامة (Tag field) المخزن في الكاش من أجل:",
+        "options": ["Index into the array", "Verify if the correct block is stored", "Calculate the offset", "Store the calculated data", "Speed up the ALU"],
+        "options_ar": ["فهرسة المصفوفة", "التحقق مما إذا كانت الكتلة الصحيحة مخزنة", "حساب الإزاحة", "تخزين البيانات المحسوبة", "تسريع الـ ALU"],
+        "correct_answer": 1,
+        "explanation": "The tag acts as a signature. Comparing the requested address's tag to the cached tag confirms a hit.",
+        "explanation_ar": "تعمل العلامة كتوقيع؛ حيث تؤدي مطابقتها مع علامة العنوان المطلوب إلى تأكيد وجود البيانات (Hit)."
+      },
+      {
+        "type": "choice",
+        "question": "The ideal speedup from pipelining is equal to:",
+        "question_ar": "التسريع المثالي الناتج عن خط الأنابيب (Pipelining) يساوي:",
+        "options": ["IC (Instruction Count)", "Number of pipeline stages", "Clock frequency", "Cache hit rate", "Number of CPU cores"],
+        "options_ar": ["عدد التعليمات (IC)", "عدد مراحل خط الأنابيب", "تردد الساعة", "معدل إصابة الكاش", "عدد أنوية المعالج"],
+        "correct_answer": 1,
+        "explanation": "Under ideal conditions (no stalls, balanced stages), an N-stage pipeline yields an N-times speedup.",
+        "explanation_ar": "في الظروف المثالية (بدون تعطل ومراحل متوازنة)، خط الأنابيب المكون من N مراحل يعطي تسريعاً يعادل N."
+      },
+      {
+        "type": "choice",
+        "question": "Which memory technology is typically used for main memory?",
+        "question_ar": "أي تقنية ذاكرة تُستخدم عادةً للذاكرة الرئيسية؟",
+        "options": ["SRAM", "DRAM", "Flash", "Magnetic disk", "Register"],
+        "options_ar": ["SRAM", "DRAM", "Flash", "قرص مغناطيسي", "سجل"],
+        "correct_answer": 1,
+        "explanation": "Dynamic RAM (DRAM) is dense and relatively cheap, making it the perfect candidate for bulk Main Memory.",
+        "explanation_ar": "ذاكرة DRAM كثيفة ورخيصة نسبياً، مما يجعلها المرشح المثالي للذاكرة الرئيسية بأحجام كبيرة."
+      },
+      {
+        "type": "choice",
+        "question": "Why is fixed instruction length a benefit?",
+        "question_ar": "لماذا يُعد الطول الثابت للتعليمة ميزة؟",
+        "options": ["Uses less memory", "Simplifies instruction fetch", "Makes code more portable", "Removes the need for a compiler", "Allows more opcodes"],
+        "options_ar": ["يستخدم ذاكرة أقل", "يبسط عملية جلب التعليمة (Instruction fetch)", "يجعل الكود أكثر قابلية للنقل", "يلغي الحاجة للمترجم", "يسمح برموز عمليات (Opcodes) أكثر"],
+        "correct_answer": 1,
+        "explanation": "The CPU doesn't have to decode the first byte to know where the instruction ends, accelerating the fetch and decode stages.",
+        "explanation_ar": "المعالج لا يحتاج لفك تشفير البايت الأول ليعرف أين تنتهي التعليمة، مما يسرع مراحل الجلب وفك التشفير بشكل كبير."
+      },
+      {
+        "type": "choice",
+        "question": "The MIPS performance metric is often criticized because:",
+        "question_ar": "مقياس الأداء MIPS (مليون تعليمة في الثانية) غالباً ما يُنتقد لأن:",
+        "options": ["Too difficult to calculate", "Only works for RISC", "Ignores the clock speed", "It's only for memory", "Instruction count varies across programs"],
+        "options_ar": ["صعب جداً في الحساب", "يعمل فقط مع RISC", "يتجاهل سرعة الساعة", "هو للذاكرة فقط", "عدد التعليمات يختلف باختلاف البرامج"],
+        "correct_answer": 4,
+        "explanation": "MIPS isn't reliable for comparisons because a CISC program might take fewer instructions but more time, whilst RISC is the inverse.",
+        "explanation_ar": "لا يعتبر مقياس MIPS موثوقاً للمقارنة، لأن برنامج CISC قد يستخدم تعليمات أقل ولكن وقتاً أطول، والعكس صحيح في RISC."
+      },
+      {
+        "type": "choice",
+        "question": "The Instruction Count (IC) is determined by:",
+        "question_ar": "يتم تحديد عدد التعليمات (IC) بواسطة:",
+        "options": ["CPU", "ISA, Compiler, and Algorithm", "User", "RAM speed", "Cache size"],
+        "options_ar": ["المعالج", "المعمارية والمترجم والخوارزمية", "المستخدم", "سرعة الرام", "حجم الكاش"],
+        "correct_answer": 1,
+        "explanation": "The algorithm dictates required operations; the compiler translates them; and the ISA dictates how efficiently they can be represented.",
+        "explanation_ar": "الخوارزمية تحدد العمليات المطلوبة، والمترجم يترجمها، والمعمارية (ISA) تحدد كيفية تمثيلها بأكبر كفاءة."
+      },
+      {
+        "type": "choice",
+        "question": "In a 5-stage pipeline, which instruction can create a structural hazard if the architecture only has one memory port for both instruction and data?",
+        "question_ar": "في خط أنابيب من 5 مراحل، أي تعليمة يمكن أن تخلق خطراً هيكلياً (Structural hazard) إذا كانت المعمارية تمتلك منفذ ذاكرة واحد فقط لكل من التعليمات والبيانات؟",
+        "options": ["ADD", "ADDI", "LW (Load Word)", "BEQ", "JUMP"],
+        "options_ar": ["ADD", "ADDI", "LW (Load Word)", "BEQ", "JUMP"],
+        "correct_answer": 2,
+        "explanation": "LW tries to read data memory during its MEM stage at the same time a newer instruction is trying to Fetch from instruction memory.",
+        "explanation_ar": "تعليمة LW تحاول قراءة البيانات في مرحلة MEM في نفس الوقت الذي تحاول فيه تعليمة جديدة الجلب (Fetch) من نفس الذاكرة."
+      },
+      {
+        "type": "choice",
+        "question": "Which of the following is the fastest memory?",
+        "question_ar": "أي مما يلي يُعد أسرع ذاكرة؟",
+        "options": ["SSD", "DRAM", "L2 Cache", "L1 Cache", "Hard Drive"],
+        "options_ar": ["SSD", "DRAM", "كاش L2", "كاش L1", "القرص الصلب"],
+        "correct_answer": 3,
+        "explanation": "L1 Cache is physically closest to the CPU cores and uses ultra-fast SRAM, providing the lowest latency.",
+        "explanation_ar": "ذاكرة كاش L1 هي الأقرب فيزيائياً لأنوية المعالج وتستخدم تقنية SRAM فائقة السرعة، مما يوفر أقل زمن استجابة."
+      }
+    ]
+  }
+]

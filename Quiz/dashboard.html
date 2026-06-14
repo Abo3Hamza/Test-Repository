@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>لوحة إدارة الكويزات</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="dashboard-page">
+    <!-- زر تبديل الثيمات -->
+    <button class="theme-toggle-btn" onclick="toggleThemeMenu()">🎨</button>
+
+    <!-- قائمة الثيمات العائمة -->
+    <div class="theme-menu" id="themeMenu">
+      <h3>اختر الثيم</h3>
+      <div id="themeList"></div>
+    </div>
+
+    <div class="dashboard-shell">
+      <nav class="dashboard-nav">
+        <div class="brand">
+          <span>🧠 Quiz Studio</span>
+        </div>
+
+        <div class="nav-links">
+          <a class="nav-link" href="index.html">Home</a>
+        </div>
+
+        <div class="nav-profile">
+          <img
+            id="dashUserAvatar"
+            class="profile-avatar"
+            src=""
+            alt="User Avatar"
+          />
+          <span id="dashUserName"></span>
+          <button class="btn-back" id="logoutBtn" type="button">Logout</button>
+        </div>
+      </nav>
+
+      <main class="layout-grid">
+        <section class="panel">
+          <h2>My Quizzes</h2>
+          <div id="myQuizList" class="my-quiz-list"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Create New Quiz</h2>
+
+          <form id="quizForm" class="form-grid">
+            <div class="field secondary-field" data-lang="en">
+              <label for="quizName">Quiz Name (EN)</label>
+              <input id="quizName" type="text" required />
+            </div>
+
+            <div class="field secondary-field" data-lang="ar">
+              <label for="quizNameAr">Quiz Name (AR)</label>
+              <input id="quizNameAr" type="text" />
+            </div>
+
+            <div class="field full">
+              <label for="quizDescription">Description</label>
+              <textarea id="quizDescription" rows="2"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="quizPrimaryLanguage">Primary Language</label>
+              <select id="quizPrimaryLanguage">
+                <option value="ar">Arabic</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Enable Translation (Bilingual)</label>
+              <div class="toggle-row">
+                <input id="quizEnableTranslation" type="checkbox" checked />
+                <label for="quizEnableTranslation">Show both languages</label>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label>Public Visibility (isPublic)</label>
+              <div class="toggle-row">
+                <input id="isPublic" type="checkbox" />
+                <label for="isPublic">Make this quiz public</label>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label>Auto-Delete After Inactivity</label>
+              <div class="ttl-row">
+                <label
+                  ><input type="radio" name="ttlDays" value="3" checked /> 3
+                  days</label
+                >
+                <label
+                  ><input type="radio" name="ttlDays" value="7" /> 7 days</label
+                >
+                <label
+                  ><input type="radio" name="ttlDays" value="30" /> 30
+                  days</label
+                >
+              </div>
+            </div>
+
+            <div class="field full">
+              <label for="json-raw-input">Raw JSON to Builder</label>
+              <textarea
+                id="json-raw-input"
+                rows="7"
+                placeholder='Paste quiz JSON or {"questions": [...]} here'
+              ></textarea>
+            </div>
+          </form>
+
+          <div class="builder-controls">
+            <select id="newQuestionType">
+              <option value="choice">choice</option>
+              <option value="true_false">true_false</option>
+              <option value="multiple_choice">multiple_choice</option>
+            </select>
+            <button class="btn-secondary" id="addQuestionBtn" type="button">
+              Add Question
+            </button>
+            <button class="btn-primary" id="saveQuizBtn" type="button">
+              Save Quiz
+            </button>
+            <button class="btn-back" id="resetBuilderBtn" type="button">
+              Reset Builder
+            </button>
+          </div>
+
+          <div id="questionBuilderList" class="question-builder-list"></div>
+          <div id="builderStatus" class="status">Ready.</div>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="js/dashboard.js"></script>
+  </body>
+</html>
