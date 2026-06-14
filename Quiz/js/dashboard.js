@@ -123,6 +123,7 @@ const elements = {
   resetBuilderBtn: document.getElementById("resetBuilderBtn"),
   questionBuilderList: document.getElementById("questionBuilderList"),
   builderStatus: document.getElementById("builderStatus"),
+  quizForm: document.getElementById("quizForm"),
 };
 
 function setStatus(message, type = "") {
@@ -291,7 +292,6 @@ function ensureMyQuizzesToolbar() {
     toolbar = document.createElement("div");
     toolbar.id = "myQuizzesToolbar";
     toolbar.style.display = "flex";
-    toolbar.style.flexWrap = "wrap";
     toolbar.style.gap = "10px";
     toolbar.style.alignItems = "center";
     toolbar.style.margin = "10px 0 14px";
@@ -315,8 +315,6 @@ function ensureMyQuizzesToolbar() {
     const status = document.createElement("div");
     status.id = "myQuizShareStatus";
     status.textContent = "";
-    status.style.minHeight = "22px";
-    status.style.padding = "4px 10px";
     status.style.borderRadius = "999px";
     status.style.background = "rgba(0,0,0,0.06)";
     status.style.color = "var(--primary)";
@@ -1316,13 +1314,13 @@ async function deleteAccountAndQuizzes() {
 }
 
 function registerEventHandlers() {
-  elements.logoutBtn.addEventListener("click", async () => {
+  elements.logoutBtn?.addEventListener("click", async () => {
     await auth.signOut();
     window.location.href = "index.html";
   });
 
   if (elements.deleteAccountBtn) {
-    elements.deleteAccountBtn.addEventListener("click", async () => {
+    elements.deleteAccountBtn?.addEventListener("click", async () => {
       const confirmDelete = window.confirm(
         "Are you sure? This will permanently delete your account and ALL your quizzes.",
       );
@@ -1346,7 +1344,7 @@ function registerEventHandlers() {
     });
   }
 
-  elements.addQuestionBtn.addEventListener("click", () => {
+  elements.addQuestionBtn?.addEventListener("click", () => {
     const type = elements.newQuestionType.value;
     builderQuestions.push(createQuestionTemplate(type));
     renderQuestionBuilder();
@@ -1354,20 +1352,20 @@ function registerEventHandlers() {
     setStatus(`Added ${type} question.`);
   });
 
-  elements.resetBuilderBtn.addEventListener("click", resetBuilder);
-  elements.saveQuizBtn.addEventListener("click", saveQuiz);
+  elements.resetBuilderBtn?.addEventListener("click", resetBuilder);
+  elements.saveQuizBtn?.addEventListener("click", saveQuiz);
 
-  elements.quizPrimaryLanguage.addEventListener("change", () => {
+  elements.quizPrimaryLanguage?.addEventListener("change", () => {
     applyBuilderLanguageVisibility();
     renderQuestionBuilder();
   });
 
-  elements.enableTranslation.addEventListener("change", () => {
+  elements.enableTranslation?.addEventListener("change", () => {
     applyBuilderLanguageVisibility();
     renderQuestionBuilder();
   });
 
-  elements.jsonRawInput.addEventListener("input", (event) => {
+  elements.jsonRawInput?.addEventListener("input", (event) => {
     const text = event.target.value.trim();
     if (!text) {
       return;
@@ -1395,21 +1393,21 @@ function registerEventHandlers() {
     }
   };
 
-  elements.quizForm.addEventListener("input", clearInlineErrorOnInput);
-  elements.quizForm.addEventListener("change", clearInlineErrorOnInput);
-  elements.questionBuilderList.addEventListener(
+  elements.quizForm?.addEventListener("input", clearInlineErrorOnInput);
+  elements.quizForm?.addEventListener("change", clearInlineErrorOnInput);
+  elements.questionBuilderList?.addEventListener(
     "input",
     clearInlineErrorOnInput,
   );
-  elements.questionBuilderList.addEventListener(
+  elements.questionBuilderList?.addEventListener(
     "change",
     clearInlineErrorOnInput,
   );
 
-  elements.questionBuilderList.addEventListener("input", handleBuilderInput);
-  elements.questionBuilderList.addEventListener("change", handleBuilderInput);
+  elements.questionBuilderList?.addEventListener("input", handleBuilderInput);
+  elements.questionBuilderList?.addEventListener("change", handleBuilderInput);
 
-  elements.questionBuilderList.addEventListener("click", (event) => {
+  elements.questionBuilderList?.addEventListener("click", (event) => {
     const button = event.target.closest(
       'button[data-action="remove-question"]',
     );
@@ -1424,7 +1422,7 @@ function registerEventHandlers() {
     setStatus("Question removed.");
   });
 
-  elements.questionBuilderList.addEventListener("click", (event) => {
+  elements.questionBuilderList?.addEventListener("click", (event) => {
     const addButton = event.target.closest('button[data-action="add-option"]');
     const removeOptionButton = event.target.closest(
       'button[data-action="remove-option"]',
@@ -1492,7 +1490,7 @@ function registerEventHandlers() {
     }
   });
 
-  elements.myQuizList.addEventListener("click", (event) => {
+  elements.myQuizList?.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-action]");
     if (!button) return;
 
