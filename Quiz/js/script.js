@@ -171,8 +171,8 @@ async function loadQuizzes() {
       if (!doc.exists) {
         quizzes = [];
         setFeedMessage(
-          "Quiz Not Found",
-          "The shared quiz link is invalid or the quiz no longer exists.",
+          "Quiz Not Found or Private",
+          "This quiz either does not exist, was deleted by its creator, or is set to private.",
         );
         initializeApp();
         return;
@@ -225,10 +225,13 @@ async function loadQuizzes() {
     initializeApp();
   } catch (error) {
     quizzes = [];
-    if (error && error.code === "permission-denied") {
+    if (
+      error &&
+      (error.code === "permission-denied" || error.code === "not-found")
+    ) {
       setFeedMessage(
-        "Access Denied",
-        "You do not have permission to view these quizzes.",
+        "Quiz Not Found or Private",
+        "This quiz either does not exist, was deleted by its creator, or is set to private.",
       );
     } else {
       setFeedMessage("Load Failed", "Unable to load quizzes right now.");

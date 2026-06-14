@@ -1128,6 +1128,203 @@ input:checked + .slider .lang-label.en {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
 }
 
+.toggle-field {
+  align-self: start;
+}
+
+.toggle-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+}
+
+.toggle-row label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary);
+  background: var(--bg);
+  margin: 0;
+  display: inline-grid;
+  place-content: center;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+input[type="checkbox"] {
+  border-radius: 6px;
+}
+
+input[type="radio"] {
+  border-radius: 999px;
+}
+
+input[type="checkbox"]::before,
+input[type="radio"]::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  transform: scale(0);
+  transition: transform 0.15s ease;
+  background: white;
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+}
+
+input[type="checkbox"]:checked::before {
+  transform: scale(1) rotate(45deg);
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid white;
+  border-bottom: 2px solid white;
+  background: transparent;
+}
+
+input[type="radio"]:checked::before {
+  transform: scale(1);
+  border-radius: 50%;
+  background: white;
+}
+
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  outline: 2px solid rgba(102, 126, 234, 0.45);
+  outline-offset: 2px;
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+  padding: 15px;
+  border-top: 2px solid var(--border);
+  z-index: 100;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+  border-radius: 0 0 15px 15px;
+}
+
+.sticky-footer select,
+.sticky-footer button {
+  min-width: 0;
+}
+
+.helper-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-inline-start: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: help;
+  position: relative;
+}
+
+.helper-icon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  inset-inline-start: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 280px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(18, 24, 38, 0.96);
+  color: white;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+  z-index: 20;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.helper-icon:hover::after,
+.helper-icon:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.12) !important;
+}
+
+.error-hint {
+  margin-top: 6px;
+  color: var(--danger);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.nav-profile .btn-back#deleteAccountBtn {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.nav-profile .btn-back#deleteAccountBtn:hover:not(:disabled) {
+  background: var(--danger);
+  color: white;
+}
+
+.question-card .field.hidden,
+.question-block .field.hidden,
+.secondary-field.hidden {
+  display: none;
+}
+
+.question-block.correct-selected {
+  background: linear-gradient(
+    135deg,
+    rgba(76, 175, 80, 0.12),
+    rgba(76, 175, 80, 0.06)
+  );
+  border-color: rgba(76, 175, 80, 0.45);
+}
+
+.option-row.correct-selected {
+  background: linear-gradient(
+    135deg,
+    rgba(76, 175, 80, 0.12),
+    rgba(76, 175, 80, 0.06)
+  );
+  border-color: rgba(76, 175, 80, 0.45);
+}
+
 .field.lang-secondary.hidden {
   display: none;
 }

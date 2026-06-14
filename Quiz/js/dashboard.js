@@ -109,12 +109,12 @@ const elements = {
   dashUserAvatar: document.getElementById("dashUserAvatar"),
   dashUserName: document.getElementById("dashUserName"),
   logoutBtn: document.getElementById("logoutBtn"),
+  deleteAccountBtn: document.getElementById("deleteAccountBtn"),
   myQuizList: document.getElementById("myQuizList"),
   quizName: document.getElementById("quizName"),
-  quizNameAr: document.getElementById("quizNameAr"),
   quizDescription: document.getElementById("quizDescription"),
   quizPrimaryLanguage: document.getElementById("quizPrimaryLanguage"),
-  quizEnableTranslation: document.getElementById("quizEnableTranslation"),
+  enableTranslation: document.getElementById("enableTranslation"),
   isPublic: document.getElementById("isPublic"),
   jsonRawInput: document.getElementById("json-raw-input"),
   newQuestionType: document.getElementById("newQuestionType"),
@@ -142,7 +142,7 @@ function getSecondaryLanguage() {
 }
 
 function isTranslationEnabled() {
-  return Boolean(elements.quizEnableTranslation?.checked);
+  return Boolean(elements.enableTranslation?.checked);
 }
 
 function getLanguageLabel(languageCode) {
@@ -191,6 +191,65 @@ function syncQuestionOptionArrays(question) {
   }
 
   return question;
+}
+
+function syncJsonTextarea() {
+  if (!elements.jsonRawInput) return;
+  elements.jsonRawInput.value = JSON.stringify(builderQuestions, null, 2);
+}
+
+function clearInlineError(element) {
+  if (!element) return;
+  element.classList.remove("input-error");
+  const nextElement = element.nextElementSibling;
+  if (nextElement && nextElement.classList.contains("error-hint")) {
+    nextElement.remove();
+  }
+}
+
+function clearAllInlineErrors() {
+  document.querySelectorAll(".input-error").forEach((element) => {
+    clearInlineError(element);
+  });
+  document.querySelectorAll(".error-hint").forEach((hint) => hint.remove());
+}
+
+function showInlineError(element, message) {
+  if (!element) return;
+
+  clearInlineError(element);
+  element.classList.add("input-error");
+
+  const hint = document.createElement("span");
+  hint.className = "error-hint";
+  hint.textContent = message;
+
+  element.insertAdjacentElement("afterend", hint);
+
+  if (typeof element.scrollIntoView === "function") {
+    element.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  if (typeof element.focus === "function") {
+    element.focus();
+  }
+}
+
+function getQuestionCard(index) {
+  return document.querySelector(`.question-card[data-index="${index}"]`);
+}
+
+function getQuestionField(index, field, lang, optionIndex) {
+  const card = getQuestionCard(index);
+  if (!card) return null;
+
+  if (field === "option") {
+    return card.querySelector(
+      `[data-field="option"][data-lang="${lang}"][data-option-index="${optionIndex}"]`,
+    );
+  }
+
+  return card.querySelector(`[data-field="${field}"][data-lang="${lang}"]`);
 }
 
 function buildShareBaseUrl() {
@@ -376,15 +435,13 @@ function parseRawJsonToBuilder(rawText) {
 
       if (typeof parsed.name === "string")
         elements.quizName.value = parsed.name;
-      if (typeof parsed.name_ar === "string")
-        elements.quizNameAr.value = parsed.name_ar;
       if (typeof parsed.description === "string")
         elements.quizDescription.value = parsed.description;
       if (parsed.primaryLanguage === "en" || parsed.primaryLanguage === "ar") {
         elements.quizPrimaryLanguage.value = parsed.primaryLanguage;
       }
       if (typeof parsed.enableTranslation === "boolean") {
-        elements.quizEnableTranslation.checked = parsed.enableTranslation;
+        elements.enableTranslation.checked = parsed.enableTranslation;
       }
       if (typeof parsed.isPublic === "boolean")
         elements.isPublic.checked = parsed.isPublic;
@@ -401,9 +458,10 @@ function parseRawJsonToBuilder(rawText) {
 
     builderQuestions = nextQuestions.map(normalizeQuestion);
     renderQuestionBuilder();
+    syncJsonTextarea();
     setStatus("Raw JSON parsed and builder populated.", "success");
   } catch (error) {
-    setStatus(`JSON parse error: ${error.message}`, "error");
+    console.error("JSON parse error:", error);
   }
 }
 
@@ -429,7 +487,7 @@ function renderMyQuizzes() {
     const ttl = quiz.ttlDays ? `${quiz.ttlDays}d` : "n/a";
 
     const title = document.createElement("h3");
-    title.textContent = quiz.name || quiz.name_ar || "Untitled Quiz";
+    title.textContent = quiz.name || "Untitled Quiz";
 
     const meta = document.createElement("div");
     meta.className = "my-quiz-meta";
@@ -499,6 +557,7 @@ function createLanguageField({
   field,
   lang,
   index,
+  optionIndex = null,
   rows = 2,
   multiline = true,
   placeholder = "",
@@ -524,6 +583,9 @@ function createLanguageField({
   input.dataset.field = field;
   input.dataset.lang = lang;
   input.dataset.index = String(index);
+  if (optionIndex !== null) {
+    input.dataset.optionIndex = String(optionIndex);
+  }
 
   wrapper.appendChild(input);
   return wrapper;
@@ -560,11 +622,16 @@ function createOptionRow(question, questionIndex, optionIndex) {
     field: "option",
     lang: primaryLanguage,
     index: questionIndex,
+    optionIndex,
     rows: 1,
     multiline: false,
     placeholder: `Option ${optionIndex + 1}`,
   });
   primaryWrap.classList.add("option-lang-primary");
+  const primaryInput = primaryWrap.querySelector("input, textarea");
+  if (primaryInput) {
+    primaryInput.dataset.optionIndex = String(optionIndex);
+  }
 
   const secondaryWrap = createLanguageField({
     labelText: `${getLanguageLabel(secondaryLanguage)} Option`,
@@ -575,11 +642,16 @@ function createOptionRow(question, questionIndex, optionIndex) {
     field: "option",
     lang: secondaryLanguage,
     index: questionIndex,
+    optionIndex,
     rows: 1,
     multiline: false,
     placeholder: `Option ${optionIndex + 1}`,
   });
   secondaryWrap.classList.add("option-lang-secondary");
+  const secondaryInput = secondaryWrap.querySelector("input, textarea");
+  if (secondaryInput) {
+    secondaryInput.dataset.optionIndex = String(optionIndex);
+  }
 
   const removeButton = document.createElement("button");
   removeButton.type = "button";
@@ -593,7 +665,9 @@ function createOptionRow(question, questionIndex, optionIndex) {
   row.appendChild(markerWrap);
   row.appendChild(primaryWrap);
   row.appendChild(secondaryWrap);
-  row.appendChild(removeButton);
+  if (question.type !== "true_false") {
+    row.appendChild(removeButton);
+  }
 
   return row;
 }
@@ -748,13 +822,17 @@ function renderQuestionBuilder() {
 
     const optionControls = document.createElement("div");
     optionControls.className = "option-list-controls";
-    const addOptionButton = document.createElement("button");
-    addOptionButton.type = "button";
-    addOptionButton.className = "btn-secondary";
-    addOptionButton.dataset.action = "add-option";
-    addOptionButton.dataset.index = String(index);
-    addOptionButton.textContent = "+ Add Option";
-    optionControls.appendChild(addOptionButton);
+
+    if (question.type !== "true_false") {
+      const addOptionButton = document.createElement("button");
+      addOptionButton.type = "button";
+      addOptionButton.className = "btn-secondary";
+      addOptionButton.dataset.action = "add-option";
+      addOptionButton.dataset.index = String(index);
+      addOptionButton.textContent = "+ Add Option";
+      addOptionButton.disabled = (question.options || []).length >= 10;
+      optionControls.appendChild(addOptionButton);
+    }
 
     optionsHeader.appendChild(optionsTitleWrap);
     optionsHeader.appendChild(optionControls);
@@ -790,6 +868,7 @@ function renderQuestionBuilder() {
   });
 
   applyBuilderLanguageVisibility();
+  syncJsonTextarea();
 }
 
 function onQuestionDragStart(event) {
@@ -825,6 +904,7 @@ function onQuestionDrop(event) {
   builderQuestions.splice(targetIndex, 0, moved);
   renderQuestionBuilder();
   setStatus("Question order updated.", "success");
+  syncJsonTextarea();
 }
 
 function onQuestionDragEnd(event) {
@@ -836,10 +916,9 @@ function resetBuilder() {
   editingQuizId = null;
   builderQuestions = [];
   elements.quizName.value = "";
-  elements.quizNameAr.value = "";
   elements.quizDescription.value = "";
   elements.quizPrimaryLanguage.value = "ar";
-  elements.quizEnableTranslation.checked = true;
+  elements.enableTranslation.checked = true;
   elements.isPublic.checked = false;
   elements.jsonRawInput.value = "";
   const defaultTtl = document.querySelector('input[name="ttlDays"][value="3"]');
@@ -847,6 +926,7 @@ function resetBuilder() {
   elements.saveQuizBtn.textContent = "Save Quiz";
   renderQuestionBuilder();
   setStatus("Builder reset.");
+  syncJsonTextarea();
 }
 
 function sanitizeQuestionsForSave() {
@@ -880,30 +960,147 @@ function sanitizeQuestionsForSave() {
 }
 
 async function saveQuiz() {
+  clearAllInlineErrors();
+
   if (!currentUser) {
-    setStatus("You must be logged in.", "error");
     return;
   }
 
   const name = elements.quizName.value.trim();
   if (!name) {
-    setStatus("Quiz Name is required.", "error");
+    showInlineError(elements.quizName, "Quiz name is required.");
     return;
   }
 
   if (builderQuestions.length === 0) {
-    setStatus("Add at least one question.", "error");
+    showInlineError(
+      elements.questionBuilderList,
+      "Add at least one question before saving.",
+    );
     return;
   }
+
+  const translationEnabled = isTranslationEnabled();
+  const primaryLanguage = getPrimaryLanguage();
 
   const ttlDays = getSelectedTtlDays();
   const expireAt = firebase.firestore.Timestamp.fromDate(
     new Date(Date.now() + ttlDays * 24 * 60 * 60 * 1000),
   );
 
+  for (
+    let questionIndex = 0;
+    questionIndex < builderQuestions.length;
+    questionIndex += 1
+  ) {
+    const question = builderQuestions[questionIndex];
+    const card = getQuestionCard(questionIndex);
+
+    const primaryQuestionField = getQuestionField(
+      questionIndex,
+      "question",
+      primaryLanguage,
+    );
+    const arabicQuestionField = getQuestionField(
+      questionIndex,
+      "question",
+      "ar",
+    );
+
+    const questionText = String(question.question || "").trim();
+    const questionArText = String(question.question_ar || "").trim();
+
+    if (!questionText) {
+      showInlineError(
+        primaryQuestionField || card,
+        "Question text is required.",
+      );
+      return;
+    }
+
+    if (translationEnabled && !questionArText) {
+      showInlineError(
+        arabicQuestionField || primaryQuestionField || card,
+        "Arabic translation is required.",
+      );
+      return;
+    }
+
+    if (question.type !== "true_false") {
+      if (!Array.isArray(question.options) || question.options.length < 2) {
+        showInlineError(
+          getQuestionField(questionIndex, "option", primaryLanguage, 0) || card,
+          "At least 2 options are required.",
+        );
+        return;
+      }
+    }
+
+    if (translationEnabled) {
+      const emptyArabicOptionIndex = (question.options_ar || []).findIndex(
+        (value) => !String(value || "").trim(),
+      );
+
+      if (emptyArabicOptionIndex !== -1) {
+        showInlineError(
+          getQuestionField(
+            questionIndex,
+            "option",
+            "ar",
+            emptyArabicOptionIndex,
+          ) || card,
+          "Arabic option text is required for every option.",
+        );
+        return;
+      }
+    }
+
+    if (question.type === "multiple_choice") {
+      if (
+        !Array.isArray(question.correct_answers) ||
+        question.correct_answers.length === 0
+      ) {
+        showInlineError(
+          getQuestionField(questionIndex, "correct", primaryLanguage, 0) ||
+            card,
+          "Select at least one correct answer.",
+        );
+        return;
+      }
+
+      const invalidSelection = question.correct_answers.some(
+        (selectedIndex) =>
+          !Number.isInteger(selectedIndex) ||
+          selectedIndex < 0 ||
+          selectedIndex >= question.options.length,
+      );
+
+      if (invalidSelection) {
+        showInlineError(
+          getQuestionField(questionIndex, "correct", primaryLanguage, 0) ||
+            card,
+          "Select a valid correct answer.",
+        );
+        return;
+      }
+    } else {
+      if (
+        !Number.isInteger(question.correct_answer) ||
+        question.correct_answer < 0 ||
+        question.correct_answer >= question.options.length
+      ) {
+        showInlineError(
+          getQuestionField(questionIndex, "correct", primaryLanguage, 0) ||
+            card,
+          "Select a valid correct answer.",
+        );
+        return;
+      }
+    }
+  }
+
   const payload = {
     name,
-    name_ar: elements.quizNameAr.value.trim(),
     description: elements.quizDescription.value.trim(),
     primaryLanguage: getPrimaryLanguage(),
     enableTranslation: isTranslationEnabled(),
@@ -931,7 +1128,6 @@ async function saveQuiz() {
     resetBuilder();
   } catch (error) {
     console.error("Save quiz error:", error);
-    setStatus(`Save failed: ${error.message}`, "error");
   }
 }
 
@@ -961,11 +1157,10 @@ function editQuiz(quizId) {
 
   editingQuizId = quiz.id;
   elements.quizName.value = quiz.name || "";
-  elements.quizNameAr.value = quiz.name_ar || "";
   elements.quizDescription.value = quiz.description || "";
   elements.quizPrimaryLanguage.value =
     quiz.primaryLanguage === "en" ? "en" : "ar";
-  elements.quizEnableTranslation.checked =
+  elements.enableTranslation.checked =
     typeof quiz.enableTranslation === "boolean" ? quiz.enableTranslation : true;
   elements.isPublic.checked = Boolean(quiz.isPublic);
 
@@ -983,6 +1178,7 @@ function editQuiz(quizId) {
   elements.saveQuizBtn.textContent = "Update Quiz";
   renderQuestionBuilder();
   setStatus("Quiz loaded into editor.", "success");
+  syncJsonTextarea();
 }
 
 async function loadMyQuizzes() {
@@ -1043,15 +1239,17 @@ function handleBuilderInput(event) {
     }
 
     renderQuestionBuilder();
+    syncJsonTextarea();
     return;
   }
 
   if (
     target.id === "quizPrimaryLanguage" ||
-    target.id === "quizEnableTranslation"
+    target.id === "enableTranslation"
   ) {
     applyBuilderLanguageVisibility();
     renderQuestionBuilder();
+    syncJsonTextarea();
     return;
   }
 
@@ -1067,6 +1265,7 @@ function handleBuilderInput(event) {
     } else {
       question.question = target.value;
     }
+    syncJsonTextarea();
     return;
   }
 
@@ -1076,11 +1275,11 @@ function handleBuilderInput(event) {
     } else {
       question.explanation = target.value;
     }
+    syncJsonTextarea();
     return;
   }
 
   if (field === "option") {
-    const primaryLanguage = getPrimaryLanguage();
     const questionKey = lang === "ar" ? "options_ar" : "options";
     const currentArray = Array.isArray(question[questionKey])
       ? question[questionKey].slice()
@@ -1093,10 +1292,27 @@ function handleBuilderInput(event) {
     currentArray[optionIndex] = target.value;
     question[questionKey] = currentArray;
     syncQuestionOptionArrays(question);
+    syncJsonTextarea();
     return;
   }
 
   question[field] = target.value;
+  syncJsonTextarea();
+}
+
+async function deleteAccountAndQuizzes() {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("No authenticated user found.");
+  }
+
+  const snapshot = await db
+    .collection("quizzes")
+    .where("userId", "==", user.uid)
+    .get();
+
+  await Promise.all(snapshot.docs.map((doc) => doc.ref.delete()));
+  await user.delete();
 }
 
 function registerEventHandlers() {
@@ -1105,10 +1321,36 @@ function registerEventHandlers() {
     window.location.href = "index.html";
   });
 
+  if (elements.deleteAccountBtn) {
+    elements.deleteAccountBtn.addEventListener("click", async () => {
+      const confirmDelete = window.confirm(
+        "Are you sure? This will permanently delete your account and ALL your quizzes.",
+      );
+      if (!confirmDelete) return;
+
+      try {
+        await deleteAccountAndQuizzes();
+        window.location.href = "index.html";
+      } catch (error) {
+        if (error && error.code === "auth/requires-recent-login") {
+          setStatus(
+            "Please sign in again before deleting the account.",
+            "error",
+          );
+          return;
+        }
+
+        console.error("Delete account error:", error);
+        setStatus(`Delete account failed: ${error.message}`, "error");
+      }
+    });
+  }
+
   elements.addQuestionBtn.addEventListener("click", () => {
     const type = elements.newQuestionType.value;
     builderQuestions.push(createQuestionTemplate(type));
     renderQuestionBuilder();
+    syncJsonTextarea();
     setStatus(`Added ${type} question.`);
   });
 
@@ -1120,14 +1362,49 @@ function registerEventHandlers() {
     renderQuestionBuilder();
   });
 
-  elements.quizEnableTranslation.addEventListener("change", () => {
+  elements.enableTranslation.addEventListener("change", () => {
     applyBuilderLanguageVisibility();
     renderQuestionBuilder();
   });
 
   elements.jsonRawInput.addEventListener("input", (event) => {
-    parseRawJsonToBuilder(event.target.value);
+    const text = event.target.value.trim();
+    if (!text) {
+      return;
+    }
+
+    try {
+      JSON.parse(text);
+      parseRawJsonToBuilder(event.target.value);
+    } catch (error) {
+      // Ignore invalid JSON while the user is still typing.
+    }
   });
+
+  const clearInlineErrorOnInput = (event) => {
+    const target = event.target;
+    if (!target || !target.classList) return;
+
+    if (target.classList.contains("input-error")) {
+      clearInlineError(target);
+    } else {
+      const nextElement = target.nextElementSibling;
+      if (nextElement && nextElement.classList.contains("error-hint")) {
+        nextElement.remove();
+      }
+    }
+  };
+
+  elements.quizForm.addEventListener("input", clearInlineErrorOnInput);
+  elements.quizForm.addEventListener("change", clearInlineErrorOnInput);
+  elements.questionBuilderList.addEventListener(
+    "input",
+    clearInlineErrorOnInput,
+  );
+  elements.questionBuilderList.addEventListener(
+    "change",
+    clearInlineErrorOnInput,
+  );
 
   elements.questionBuilderList.addEventListener("input", handleBuilderInput);
   elements.questionBuilderList.addEventListener("change", handleBuilderInput);
@@ -1143,6 +1420,7 @@ function registerEventHandlers() {
 
     builderQuestions.splice(index, 1);
     renderQuestionBuilder();
+    syncJsonTextarea();
     setStatus("Question removed.");
   });
 
@@ -1157,6 +1435,15 @@ function registerEventHandlers() {
       const question = builderQuestions[questionIndex];
       if (!question) return;
 
+      if (question.type === "true_false") {
+        return;
+      }
+
+      if ((question.options || []).length >= 10) {
+        setStatus("Maximum of 10 options reached.", "error");
+        return;
+      }
+
       question.options = Array.isArray(question.options)
         ? question.options.slice()
         : [];
@@ -1167,6 +1454,7 @@ function registerEventHandlers() {
       question.options_ar.push("");
       syncQuestionOptionArrays(question);
       renderQuestionBuilder();
+      syncJsonTextarea();
       setStatus("Option added.", "success");
       return;
     }
@@ -1199,6 +1487,7 @@ function registerEventHandlers() {
 
       syncQuestionOptionArrays(question);
       renderQuestionBuilder();
+      syncJsonTextarea();
       setStatus("Option removed.", "success");
     }
   });
@@ -1227,6 +1516,7 @@ function registerEventHandlers() {
 function initDashboard() {
   registerEventHandlers();
   loadTheme();
+  displayThemeOptions();
 
   auth.onAuthStateChanged(async (user) => {
     if (!user) {

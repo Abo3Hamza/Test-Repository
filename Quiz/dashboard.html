@@ -22,10 +22,6 @@
           <span>🧠 Quiz Studio</span>
         </div>
 
-        <div class="nav-links">
-          <a class="nav-link" href="index.html">Home</a>
-        </div>
-
         <div class="nav-profile">
           <img
             id="dashUserAvatar"
@@ -35,6 +31,9 @@
           />
           <span id="dashUserName"></span>
           <button class="btn-back" id="logoutBtn" type="button">Logout</button>
+          <button class="btn-back" id="deleteAccountBtn" type="button">
+            Delete Account
+          </button>
         </div>
       </nav>
 
@@ -48,14 +47,9 @@
           <h2>Create New Quiz</h2>
 
           <form id="quizForm" class="form-grid">
-            <div class="field secondary-field" data-lang="en">
-              <label for="quizName">Quiz Name (EN)</label>
+            <div class="field full">
+              <label for="quizName">Quiz Name</label>
               <input id="quizName" type="text" required />
-            </div>
-
-            <div class="field secondary-field" data-lang="ar">
-              <label for="quizNameAr">Quiz Name (AR)</label>
-              <input id="quizNameAr" type="text" />
             </div>
 
             <div class="field full">
@@ -63,7 +57,7 @@
               <textarea id="quizDescription" rows="2"></textarea>
             </div>
 
-            <div class="field">
+            <div class="field toggle-field">
               <label for="quizPrimaryLanguage">Primary Language</label>
               <select id="quizPrimaryLanguage">
                 <option value="ar">Arabic</option>
@@ -71,15 +65,15 @@
               </select>
             </div>
 
-            <div class="field">
+            <div class="field toggle-field">
               <label>Enable Translation (Bilingual)</label>
               <div class="toggle-row">
-                <input id="quizEnableTranslation" type="checkbox" checked />
-                <label for="quizEnableTranslation">Show both languages</label>
+                <input id="enableTranslation" type="checkbox" checked />
+                <label for="enableTranslation">Show both languages</label>
               </div>
             </div>
 
-            <div class="field full">
+            <div class="field full toggle-field">
               <label>Public Visibility (isPublic)</label>
               <div class="toggle-row">
                 <input id="isPublic" type="checkbox" />
@@ -105,7 +99,15 @@
             </div>
 
             <div class="field full">
-              <label for="json-raw-input">Raw JSON to Builder</label>
+              <label for="json-raw-input"
+                >Raw JSON to Builder
+                <span
+                  class="helper-icon"
+                  tabindex="0"
+                  data-tooltip='Example: {"questions":[{"type":"choice","question":"...","options":["A","B"],"correct_answer":0}]}'
+                  >(?)</span
+                ></label
+              >
               <textarea
                 id="json-raw-input"
                 rows="7"
@@ -114,27 +116,31 @@
             </div>
           </form>
 
-          <div class="builder-controls">
-            <select id="newQuestionType">
-              <option value="choice">choice</option>
-              <option value="true_false">true_false</option>
-              <option value="multiple_choice">multiple_choice</option>
-            </select>
-            <button class="btn-secondary" id="addQuestionBtn" type="button">
-              Add Question
-            </button>
-            <button class="btn-primary" id="saveQuizBtn" type="button">
-              Save Quiz
-            </button>
-            <button class="btn-back" id="resetBuilderBtn" type="button">
-              Reset Builder
-            </button>
-          </div>
-
-          <div id="questionBuilderList" class="question-builder-list"></div>
+          <div
+            id="questionBuilderList"
+            class="question-builder-list"
+            tabindex="-1"
+          ></div>
           <div id="builderStatus" class="status">Ready.</div>
         </section>
       </main>
+
+      <div class="builder-controls sticky-footer">
+        <select id="newQuestionType">
+          <option value="choice">choice</option>
+          <option value="true_false">true_false</option>
+          <option value="multiple_choice">multiple_choice</option>
+        </select>
+        <button class="btn-secondary" id="addQuestionBtn" type="button">
+          Add Question
+        </button>
+        <button class="btn-primary" id="saveQuizBtn" type="button">
+          Save Quiz
+        </button>
+        <button class="btn-back" id="resetBuilderBtn" type="button">
+          Reset Builder
+        </button>
+      </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
