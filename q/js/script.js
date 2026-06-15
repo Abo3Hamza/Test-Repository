@@ -69,12 +69,24 @@ function updateAuthUI(user) {
     loggedInView.style.display = "none";
   }
 }
-
+let isLoggingIn = false;
 async function loginWithGoogle() {
-  if (!auth) return;
+  if (!auth || isLoggingIn) return; // منع الضغط المتكرر
+  
+  isLoggingIn = true; // قفل الزر
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
-  try { await auth.signInWithPopup(provider); } catch (error) { console.error(error); }
+  
+  try { 
+    await auth.signInWithPopup(provider); 
+  } catch (error) { 
+    console.error("Login error:", error); 
+    if (error.message.includes('Cross-Origin')) {
+      alert("إعدادات الأمان في المتصفح تمنع النافذة. إذا كنت تستخدم Live Server، جرب فتح الصفحة عادياً أو ارفعها على استضافة.");
+    }
+  } finally {
+    isLoggingIn = false; // فك القفل
+  }
 }
 
 async function logoutUser() {
