@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+    <link rel="stylesheet" href="https://printjs-4de6.kxcdn.com/print.min.css">
+    <title>Interactive Quiz Platform</title>  
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="top-navbar">
+        <div class="nav-brand" onclick="goHome()">🎓 Pro Quiz Master</div>
+        <div class="nav-actions">
+            <button class="theme-toggle-btn" onclick="toggleThemeMenu()">🎨</button>
+            <div class="theme-menu" id="themeMenu">
+                <h3>Select Theme</h3>
+                <div id="themeList"></div>
+            </div>
+            
+            <div class="auth-panel" id="authPanel">
+                <div id="loggedOutView" class="auth-state">
+                    <button class="btn-primary auth-btn" onclick="loginWithGoogle()">Sign in with Google</button>
+                </div>
+                <div id="loggedInView" class="auth-state" style="display: none;">
+                    <img id="userAvatar" class="user-avatar" src="" alt="User avatar">
+                    <span id="userName" class="user-name"></span>
+                    <button class="btn-secondary auth-btn" onclick="window.location.href='dashboard.html'">Manage My Quizzes</button>
+                    <button class="btn-back auth-btn" onclick="deleteUserAccount()" style="color: var(--danger); border-color: var(--danger);">Delete Account</button>
+                    <button class="btn-back auth-btn" onclick="logoutUser()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="homePage" class="home-page">
+        <div class="container">
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <h2 id="emptyTitle">📚 No Quizzes Found</h2>
+                <p id="emptyMessage">Please wait, new quizzes will be added soon.</p>
+            </div>
+            <div class="quizzes-grid" id="quizzesGrid"></div>
+        </div>
+    </div>
+
+    <div id="quizPage" class="quiz-page">
+        <div class="container">
+            <div class="quiz-header">
+                <div class="quiz-title" id="quizTitle"></div>
+                <div class="timer" id="timer">00:00</div>
+                <div class="progress-container">
+                    <div id="progressTrack" class="progress-track"></div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div class="question-header">
+                    <span class="question-number" id="questionNumber"></span>
+                    <span class="question-type" id="questionType"></span>
+                    <button class="translate-btn" id="translateBtn" onclick="toggleTranslate()">🌐 Translate</button>
+                </div>
+                <div id="question-content" dir="ltr">
+                    <div class="question-text" id="questionText"></div>
+                    <img src="" alt="Question Image" class="question-image" id="questionImage" style="display: none;">
+                    <div class="options" id="optionsContainer"></div>
+                    <div class="feedback" id="feedback"></div>
+                </div>
+            </div>
+
+            <div class="controls" id="controlsContainer">
+                <button class="btn-back" onclick="goHome()">← Home</button>
+                <button class="btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+                <button class="btn-primary" id="submitBtn" onclick="submitAnswer()" style="display: none;">✓ Submit</button>
+                <button class="btn-secondary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultsPage" class="results-page">
+        <div class="container">
+            <div class="results-container">
+                <h1 class="results-title">✅ Quiz Completed</h1>
+                <div class="score-display">
+                    <span id="finalScore">0</span>
+                    <div class="percentage" id="finalPercentage">0%</div>
+                </div>
+
+                <div class="results-summary">
+                    <div class="summary-item correct">
+                        <label>✓ Correct Answers</label>
+                        <div class="value" id="finalCorrect">0</div>
+                    </div>
+                    <div class="summary-item incorrect">
+                        <label>✗ Incorrect Answers</label>
+                        <div class="value" id="finalIncorrect">0</div>
+                    </div>
+                    <div class="summary-item skipped">
+                        <label>⊘ Skipped Questions</label>
+                        <div class="value" id="finalSkipped">0</div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 20px; border-radius: 10px; margin: 30px 0;" id="timeContainer">
+                    <strong>⏱️ Time Taken:</strong> <span id="totalTime">00:00</span>
+                </div>
+
+                <div class="lang-switch-container" style="display: none;" id="langSwitchContainer">
+                    <label class="switch">
+                        <input type="checkbox" id="langToggle" onchange="toggleTranslate()">
+                        <span class="slider round">
+                            <span class="lang-label ar">AR</span>
+                            <span class="lang-label en">EN</span>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="wrong-answers" id="wrongAnswersContainer" style="display: none;">
+                    <h3>❌ Incorrect Answers Review</h3>
+                    <div id="wrongAnswersList"></div>
+                </div>
+
+                <div class="wrong-answers skipped-answers" id="skippedAnswersContainer" style="display: none;">
+                    <h3>⊘ Skipped Questions Review</h3>
+                    <div id="skippedAnswersList"></div>
+                </div>
+
+                <div class="controls" style="margin-top: 40px;">
+                    <button class="btn-download" id="downloadPdfBtn" onclick="downloadErrorsPDF()" style="display: none;">📥 Download Errors</button>
+                    <button class="btn-primary" onclick="goHome()">Back to Home</button>
+                    <button class="btn-secondary" onclick="retakeQuiz()">Retake Quiz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
