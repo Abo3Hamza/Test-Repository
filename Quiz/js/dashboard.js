@@ -108,8 +108,7 @@ let shareToastTimer = null;
 const elements = {
   dashUserAvatar: document.getElementById("dashUserAvatar"),
   dashUserName: document.getElementById("dashUserName"),
-  logoutBtn: document.getElementById("logoutBtn"),
-  deleteAccountBtn: document.getElementById("deleteAccountBtn"),
+  // Prompt 1: logoutBtn and deleteAccountBtn removed from dashboard.html
   myQuizList: document.getElementById("myQuizList"),
   quizName: document.getElementById("quizName"),
   quizDescription: document.getElementById("quizDescription"),
@@ -126,12 +125,58 @@ const elements = {
   quizForm: document.getElementById("quizForm"),
 };
 
+// Fullscreen / toggle controls
+const dashboardShell = document.querySelector(".dashboard-shell");
+const createPanel = document.querySelectorAll(".layout-grid .panel")[0];
+const myQuizzesPanel = document.querySelectorAll(".layout-grid .panel")[1];
+
 function setStatus(message, type = "") {
   elements.builderStatus.textContent = message;
   elements.builderStatus.className = "status";
   if (type) {
     elements.builderStatus.classList.add(type);
   }
+}
+
+// Show a friendly alert and dashboard status for errors
+function showFriendlyDashboardError(message) {
+  try {
+    alert(message);
+  } catch (e) {}
+  try {
+    setStatus(message, "error");
+  } catch (e) {}
+}
+
+function handleFirestoreError(error, defaultMessage) {
+  console.warn("Firestore error:", error);
+  const code = error && (error.code || error?.message || "");
+  if (
+    code === "resource-exhausted" ||
+    code === "quota-exceeded" ||
+    (typeof code === "string" && code.includes("quota")) ||
+    code === "unavailable" ||
+    code === "deadline-exceeded"
+  ) {
+    showFriendlyDashboardError(
+      "The server is experiencing heavy load. Please try again later.",
+    );
+  } else if (code === "permission-denied") {
+    showFriendlyDashboardError("Permission denied. Please check your access.");
+  } else {
+    showFriendlyDashboardError(
+      defaultMessage || "An unexpected error occurred.",
+    );
+  }
+}
+
+function sanitizeImageUrl(url) {
+  if (!url) return "";
+  try {
+    const u = new URL(String(url), window.location.href);
+    if (u.protocol === "http:" || u.protocol === "https:") return u.href;
+  } catch (e) {}
+  return "";
 }
 
 function getPrimaryLanguage() {
@@ -454,12 +499,49 @@ function parseRawJsonToBuilder(rawText) {
       throw new Error("Raw JSON must be an array or object with questions[]");
     }
 
-    builderQuestions = nextQuestions.map(normalizeQuestion);
+    // Defensive: do NOT spread or directly trust parsed objects (prototype pollution risk).
+    // Only accept explicit, whitelisted question fields and coerce types.
+    const MAX_QUESTIONS = 500;
+    if (!Array.isArray(nextQuestions)) nextQuestions = [];
+    if (nextQuestions.length > MAX_QUESTIONS) {
+      setStatus(
+        `JSON contains too many questions (max ${MAX_QUESTIONS}).`,
+        "error",
+      );
+      return;
+    }
+
+    builderQuestions = nextQuestions.map((q) => {
+      const safe = {
+        type: typeof q?.type === "string" ? q.type : "choice",
+        question: typeof q?.question === "string" ? q.question : "",
+        question_ar: typeof q?.question_ar === "string" ? q.question_ar : "",
+        options: Array.isArray(q?.options)
+          ? q.options.map((v) => String(v || ""))
+          : [],
+        options_ar: Array.isArray(q?.options_ar)
+          ? q.options_ar.map((v) => String(v || ""))
+          : [],
+        correct_answers: Array.isArray(q?.correct_answers)
+          ? q.correct_answers.map((n) => Number(n)).filter(Number.isInteger)
+          : [],
+        correct_answer: Number.isInteger(Number(q?.correct_answer))
+          ? Number(q.correct_answer)
+          : 0,
+        explanation: typeof q?.explanation === "string" ? q.explanation : "",
+        explanation_ar:
+          typeof q?.explanation_ar === "string" ? q.explanation_ar : "",
+        image: typeof q?.image === "string" ? q.image : "",
+      };
+
+      return normalizeQuestion(safe);
+    });
     renderQuestionBuilder();
     syncJsonTextarea();
     setStatus("Raw JSON parsed and builder populated.", "success");
   } catch (error) {
     console.error("JSON parse error:", error);
+    setStatus("Invalid JSON: please fix the format and try again.", "error");
   }
 }
 
@@ -911,6 +993,10 @@ function onQuestionDragEnd(event) {
 }
 
 function resetBuilder() {
+  const confirmReset = window.confirm(
+    "Reset the builder? Unsaved changes will be lost.",
+  );
+  if (!confirmReset) return;
   editingQuizId = null;
   builderQuestions = [];
   elements.quizName.value = "";
@@ -936,6 +1022,22 @@ function sanitizeQuestionsForSave() {
     normalized.options_ar = (normalized.options_ar || []).map((v) =>
       String(v || "").trim(),
     );
+
+    // Sanitize image URLs: only allow http(s). Drop anything else.
+    if (typeof normalized.image === "string" && normalized.image.trim()) {
+      try {
+        const u = new URL(normalized.image, window.location.href);
+        if (u.protocol !== "http:" && u.protocol !== "https:") {
+          normalized.image = "";
+        } else {
+          normalized.image = u.href;
+        }
+      } catch (e) {
+        normalized.image = "";
+      }
+    } else {
+      normalized.image = "";
+    }
 
     if (normalized.type === "multiple_choice") {
       normalized.correct_answers = (normalized.correct_answers || [])
@@ -967,6 +1069,14 @@ async function saveQuiz() {
   const name = elements.quizName.value.trim();
   if (!name) {
     showInlineError(elements.quizName, "Quiz name is required.");
+    return;
+  }
+  // Enforce reasonable length limits
+  if (name.length > 200) {
+    showInlineError(
+      elements.quizName,
+      "Quiz name must be 200 characters or fewer.",
+    );
     return;
   }
 
@@ -1095,11 +1205,46 @@ async function saveQuiz() {
         return;
       }
     }
+
+    // ===== Prompt 3: Explanation cross-language validation =====
+    if (translationEnabled) {
+      const explanationPrimary = String(
+        primaryLanguage === "ar"
+          ? question.explanation_ar || ""
+          : question.explanation || "",
+      ).trim();
+      const explanationSecondary = String(
+        secondaryLanguage === "ar"
+          ? question.explanation_ar || ""
+          : question.explanation || "",
+      ).trim();
+
+      const hasPrimary = explanationPrimary.length > 0;
+      const hasSecondary = explanationSecondary.length > 0;
+
+      // If one explanation is filled, the other becomes required
+      if (hasPrimary && !hasSecondary) {
+        showInlineError(
+          getQuestionField(questionIndex, "explanation", secondaryLanguage) ||
+            card,
+          `Explanation (${getLanguageLabel(secondaryLanguage)}) is required when the other language has content.`,
+        );
+        return;
+      }
+      if (!hasPrimary && hasSecondary) {
+        showInlineError(
+          getQuestionField(questionIndex, "explanation", primaryLanguage) ||
+            card,
+          `Explanation (${getLanguageLabel(primaryLanguage)}) is required when the other language has content.`,
+        );
+        return;
+      }
+    }
   }
 
   const payload = {
     name,
-    description: elements.quizDescription.value.trim(),
+    description: (elements.quizDescription.value || "").trim().slice(0, 1000),
     primaryLanguage: getPrimaryLanguage(),
     enableTranslation: isTranslationEnabled(),
     isPublic: elements.isPublic.checked,
@@ -1112,6 +1257,10 @@ async function saveQuiz() {
 
   try {
     if (editingQuizId) {
+      const confirmUpdate = window.confirm(
+        "Update this quiz with the changes?",
+      );
+      if (!confirmUpdate) return;
       await db.collection("quizzes").doc(editingQuizId).update(payload);
       setStatus("Quiz updated successfully.", "success");
     } else {
@@ -1125,7 +1274,7 @@ async function saveQuiz() {
     await loadMyQuizzes();
     resetBuilder();
   } catch (error) {
-    console.error("Save quiz error:", error);
+    handleFirestoreError(error, "Failed to save quiz. Please try again later.");
   }
 }
 
@@ -1144,8 +1293,10 @@ async function deleteQuiz(quizId) {
       resetBuilder();
     }
   } catch (error) {
-    console.error("Delete quiz error:", error);
-    setStatus(`Delete failed: ${error.message}`, "error");
+    handleFirestoreError(
+      error,
+      `Delete failed: ${error.message || "Unable to delete quiz."}`,
+    );
   }
 }
 
@@ -1191,15 +1342,49 @@ async function loadMyQuizzes() {
     myQuizzes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     renderMyQuizzes();
   } catch (error) {
-    console.error("Load quizzes error:", error);
-    setStatus(`Load failed: ${error.message}`, "error");
+    handleFirestoreError(
+      error,
+      `Load failed: ${error.message || "Unable to load your quizzes."}`,
+    );
   }
 }
 
 function updateUserHeader(user) {
-  elements.dashUserAvatar.src =
-    user.photoURL || "https://www.gravatar.com/avatar/?d=mp";
-  elements.dashUserName.textContent = user.displayName || user.email || "User";
+  if (elements.dashUserAvatar) {
+    try {
+      const safe = sanitizeImageUrl(user && user.photoURL ? user.photoURL : "");
+      elements.dashUserAvatar.src =
+        safe || "https://www.gravatar.com/avatar/?d=mp";
+    } catch (e) {
+      console.warn("Failed to set avatar src", e);
+    }
+  }
+  if (elements.dashUserName) {
+    elements.dashUserName.textContent =
+      user && (user.displayName || user.email)
+        ? user.displayName || user.email
+        : "User";
+  }
+}
+
+// Analysis: create a simple analysis document in Firestore for a quiz
+async function analyzeQuiz(quizId) {
+  if (!currentUser || !db) return;
+  const confirmAnalysis = window.confirm(
+    "Run analysis for this quiz? This will create an analysis record.",
+  );
+  if (!confirmAnalysis) return;
+  try {
+    await db.collection("analysis").add({
+      quizId,
+      userId: currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      status: "queued",
+    });
+    setStatus("Analysis task queued.", "success");
+  } catch (error) {
+    handleFirestoreError(error, "Analysis failed to start.");
+  }
 }
 
 function handleBuilderInput(event) {
@@ -1298,49 +1483,16 @@ function handleBuilderInput(event) {
   syncJsonTextarea();
 }
 
-async function deleteAccountAndQuizzes() {
-  const user = auth.currentUser;
-  if (!user) {
-    throw new Error("No authenticated user found.");
-  }
-
-  const snapshot = await db
-    .collection("quizzes")
-    .where("userId", "==", user.uid)
-    .get();
-
-  await Promise.all(snapshot.docs.map((doc) => doc.ref.delete()));
-  await user.delete();
-}
-
 function registerEventHandlers() {
-  elements.logoutBtn?.addEventListener("click", async () => {
-    await auth.signOut();
-    window.location.href = "index.html";
-  });
+  // Prompt 1: Logout and Delete Account moved to index.html
+  // elements.logoutBtn and elements.deleteAccountBtn are no longer in dashboard.html
 
-  if (elements.deleteAccountBtn) {
-    elements.deleteAccountBtn?.addEventListener("click", async () => {
-      const confirmDelete = window.confirm(
-        "Are you sure? This will permanently delete your account and ALL your quizzes.",
-      );
-      if (!confirmDelete) return;
-
-      try {
-        await deleteAccountAndQuizzes();
-        window.location.href = "index.html";
-      } catch (error) {
-        if (error && error.code === "auth/requires-recent-login") {
-          setStatus(
-            "Please sign in again before deleting the account.",
-            "error",
-          );
-          return;
-        }
-
-        console.error("Delete account error:", error);
-        setStatus(`Delete account failed: ${error.message}`, "error");
-      }
+  // Prompt 3: AI Modal functions
+  const aiModalTrigger = document.querySelector(".ai-prompt-trigger");
+  if (aiModalTrigger) {
+    aiModalTrigger.addEventListener("click", (e) => {
+      e.preventDefault();
+      openAiModal();
     });
   }
 
@@ -1363,6 +1515,21 @@ function registerEventHandlers() {
   elements.enableTranslation?.addEventListener("change", () => {
     applyBuilderLanguageVisibility();
     renderQuestionBuilder();
+  });
+
+  // Prompt 3: Ensure newQuestionType properly updates internal state
+  elements.newQuestionType?.addEventListener("change", () => {
+    // Visual feedback: update add button text based on selected type
+    const selectedType = elements.newQuestionType.value;
+    const typeLabels = {
+      choice: "Add Question",
+      true_false: "Add True/False",
+      multiple_choice: "Add Multi-Select",
+    };
+    if (elements.addQuestionBtn) {
+      elements.addQuestionBtn.textContent =
+        typeLabels[selectedType] || "Add Question";
+    }
   });
 
   elements.jsonRawInput?.addEventListener("input", (event) => {
@@ -1509,7 +1676,99 @@ function registerEventHandlers() {
       });
     }
   });
+
+  // Wire up nav buttons
+  document
+    .getElementById("toggleMyQuizzesBtn")
+    ?.addEventListener("click", () => {
+      const panel = document.getElementById("myQuizzesPanel");
+      if (panel) {
+        panel.style.display = panel.style.display === "none" ? "block" : "none";
+        // adjust grid when hidden
+        if (panel.style.display === "none") {
+          document.querySelector(".layout-grid").style.gridTemplateColumns =
+            "1fr";
+        } else {
+          document.querySelector(".layout-grid").style.gridTemplateColumns =
+            "1fr 360px";
+        }
+      }
+    });
+
+  // Start automatic site analysis if analysis module is available.
+  if (typeof window.runSiteAnalysis === "function") {
+    try {
+      // Run once on dashboard load
+      window.runSiteAnalysis();
+      // Repeat periodically (every 5 minutes)
+      setInterval(
+        () => {
+          try {
+            window.runSiteAnalysis();
+          } catch (e) {
+            console.warn("Periodic analysis failed:", e);
+          }
+        },
+        5 * 60 * 1000,
+      );
+    } catch (e) {
+      console.warn("Automatic analysis failed to start:", e);
+    }
+  }
 }
+
+// ===== Prompt 3: AI Prompt Modal =====
+function openAiModal() {
+  const overlay = document.getElementById("aiModalOverlay");
+  if (overlay) {
+    overlay.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function closeAiModal() {
+  const overlay = document.getElementById("aiModalOverlay");
+  if (overlay) {
+    overlay.style.display = "none";
+    document.body.style.overflow = "";
+  }
+}
+
+async function copyAiPrompt() {
+  const codeBlock = document.getElementById("aiPromptCode");
+  if (!codeBlock) return;
+
+  const promptText = codeBlock.textContent;
+  try {
+    await navigator.clipboard.writeText(promptText);
+    const btn = document.querySelector(".ai-modal-footer .btn-primary");
+    const originalText = btn ? btn.textContent : "";
+    if (btn) {
+      btn.textContent = "✅ Copied!";
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 1600);
+    }
+  } catch (error) {
+    console.error("Copy failed:", error);
+    alert("Copy failed. Please select and copy manually.");
+  }
+}
+
+// Close modal on overlay click
+document.addEventListener("click", (e) => {
+  const overlay = document.getElementById("aiModalOverlay");
+  if (overlay && e.target === overlay) {
+    closeAiModal();
+  }
+});
+
+// Close modal on Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeAiModal();
+  }
+});
 
 function initDashboard() {
   registerEventHandlers();

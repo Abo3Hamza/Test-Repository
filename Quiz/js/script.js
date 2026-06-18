@@ -91,6 +91,35 @@ function clearFeedMessage() {
   feedMessage = null;
 }
 
+function showFriendlyGlobalError(message) {
+  try {
+    alert(message);
+  } catch (e) {}
+  try {
+    setFeedMessage("Error", message);
+  } catch (e) {}
+}
+
+function handleFirestoreErrorGlobal(error, defaultMessage) {
+  console.warn("Firestore error:", error);
+  const code = error && (error.code || error?.message || "");
+  if (
+    code === "resource-exhausted" ||
+    code === "quota-exceeded" ||
+    (typeof code === "string" && code.includes("quota")) ||
+    code === "unavailable" ||
+    code === "deadline-exceeded"
+  ) {
+    showFriendlyGlobalError(
+      "The server is experiencing heavy load. Please try again later.",
+    );
+  } else if (code === "permission-denied") {
+    showFriendlyGlobalError("Permission denied. Please check your access.");
+  } else {
+    showFriendlyGlobalError(defaultMessage || "An unexpected error occurred.");
+  }
+}
+
 function updateAuthUI(user) {
   const loggedOutView = document.getElementById("loggedOutView");
   const loggedInView = document.getElementById("loggedInView");
@@ -102,7 +131,9 @@ function updateAuthUI(user) {
   if (user) {
     loggedOutView.style.display = "none";
     loggedInView.style.display = "flex";
-    userAvatar.src = user.photoURL || "https://www.gravatar.com/avatar/?d=mp";
+    userAvatar.src =
+      sanitizeImageUrl(user.photoURL) ||
+      "https://www.gravatar.com/avatar/?d=mp";
     userName.textContent = user.displayName || user.email || "User";
   } else {
     loggedOutView.style.display = "flex";
@@ -125,6 +156,7 @@ async function loginWithGoogle() {
     await auth.signInWithPopup(provider);
   } catch (error) {
     console.error("خطأ في تسجيل الدخول عبر جوجل:", error);
+    handleFirestoreErrorGlobal(error, "Failed to sign in. Please try again.");
   }
 }
 
@@ -138,8 +170,72 @@ async function logoutUser() {
     await auth.signOut();
   } catch (error) {
     console.error("خطأ في تسجيل الخروج:", error);
+    handleFirestoreErrorGlobal(error, "Failed to sign out. Please try again.");
   }
 }
+
+// ===== Prompt 1: Delete Account (moved from dashboard.js) =====
+async function deleteAccountAndQuizzes() {
+  if (!auth || !db) {
+    throw new Error("Firebase is not initialized.");
+  }
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("No authenticated user found.");
+  }
+
+  const snapshot = await db
+    .collection("quizzes")
+    .where("userId", "==", user.uid)
+    .get();
+
+  await Promise.all(snapshot.docs.map((doc) => doc.ref.delete()));
+  await user.delete();
+}
+
+function deleteAccount() {
+  const confirmDelete = window.confirm(
+    "Are you sure? This will permanently delete your account and ALL your quizzes. This action cannot be undone.",
+  );
+  if (!confirmDelete) return;
+
+  deleteAccountAndQuizzes()
+    .then(() => {
+      window.location.reload();
+    })
+    .catch((error) => {
+      if (error && error.code === "auth/requires-recent-login") {
+        alert("Please sign in again before deleting the account.");
+        return;
+      }
+      handleFirestoreErrorGlobal(
+        error,
+        "Failed to delete account: " + (error.message || "Unknown error"),
+      );
+    });
+}
+
+// ===== Prompt 1: User Dropdown Toggle =====
+function toggleUserDropdown() {
+  const menu = document.getElementById("userDropdownMenu");
+  if (menu) {
+    menu.classList.toggle("show");
+  }
+}
+
+function closeUserDropdown() {
+  const menu = document.getElementById("userDropdownMenu");
+  if (menu) {
+    menu.classList.remove("show");
+  }
+}
+
+document.addEventListener("click", (e) => {
+  const dropdown = document.getElementById("userDropdown");
+  if (dropdown && !dropdown.contains(e.target)) {
+    closeUserDropdown();
+  }
+});
 
 // ===== تحميل البيانات =====
 async function loadQuizzes() {
@@ -156,6 +252,38 @@ async function loadQuizzes() {
     const userId = getUserIdFromUrl();
 
     if (!quizId && !userId) {
+      // If user is signed in, show their quizzes (public + own). Otherwise show landing welcome.
+      if (currentUser) {
+        landingMode = false;
+        try {
+          const [publicSnap, mySnap] = await Promise.all([
+            db.collection("quizzes").where("isPublic", "==", true).get(),
+            db
+              .collection("quizzes")
+              .where("userId", "==", currentUser.uid)
+              .get(),
+          ]);
+
+          const map = new Map();
+          publicSnap.docs.concat(mySnap.docs).forEach((doc) => {
+            map.set(doc.id, { id: doc.id, ...doc.data() });
+          });
+
+          quizzes = Array.from(map.values()).filter((q) =>
+            Array.isArray(q.questions),
+          );
+          initializeApp();
+          return;
+        } catch (err) {
+          console.warn("Error loading landing quizzes:", err);
+          quizzes = [];
+          landingMode = true;
+          clearFeedMessage();
+          initializeApp();
+          return;
+        }
+      }
+
       landingMode = true;
       quizzes = [];
       clearFeedMessage();
@@ -234,7 +362,7 @@ async function loadQuizzes() {
         "This quiz either does not exist, was deleted by its creator, or is set to private.",
       );
     } else {
-      setFeedMessage("Load Failed", "Unable to load quizzes right now.");
+      handleFirestoreErrorGlobal(error, "Unable to load quizzes right now.");
       console.warn("خطأ في تحميل الكويزات:", error);
     }
     initializeApp();
@@ -386,67 +514,6 @@ function displayQuizzes() {
     questionCountSpan.textContent = `${questionCount} أسئلة`;
     info.appendChild(questionCountSpan);
 
-    const timerWrapper = document.createElement("div");
-    timerWrapper.style.marginBottom = "15px";
-
-    const timerNoneRow = document.createElement("div");
-    timerNoneRow.className = "timer-option";
-    const noneInput = document.createElement("input");
-    noneInput.type = "radio";
-    noneInput.name = `timer_${index}`;
-    noneInput.value = "none";
-    noneInput.id = `timer_none_${index}`;
-    noneInput.checked = true;
-    const noneLabel = document.createElement("label");
-    noneLabel.htmlFor = noneInput.id;
-    noneLabel.textContent = "بدون وقت";
-    timerNoneRow.appendChild(noneInput);
-    timerNoneRow.appendChild(noneLabel);
-
-    const timerAscRow = document.createElement("div");
-    timerAscRow.className = "timer-option";
-    const ascInput = document.createElement("input");
-    ascInput.type = "radio";
-    ascInput.name = `timer_${index}`;
-    ascInput.value = "ascending";
-    ascInput.id = `timer_asc_${index}`;
-    const ascLabel = document.createElement("label");
-    ascLabel.htmlFor = ascInput.id;
-    ascLabel.textContent = "عد تصاعدي";
-    timerAscRow.appendChild(ascInput);
-    timerAscRow.appendChild(ascLabel);
-
-    const timerDescRow = document.createElement("div");
-    timerDescRow.className = "timer-option";
-    const descInput = document.createElement("input");
-    descInput.type = "radio";
-    descInput.name = `timer_${index}`;
-    descInput.value = "descending";
-    descInput.id = `timer_desc_${index}`;
-    const descLabel = document.createElement("label");
-    descLabel.htmlFor = descInput.id;
-    descLabel.textContent = "عد تنازلي";
-    const config = document.createElement("div");
-    config.className = "timer-config";
-    config.id = `timer_config_${index}`;
-    const configLabel = document.createElement("label");
-    configLabel.textContent = "اختر الوقت (بالدقائق):";
-    const timerInput = document.createElement("input");
-    timerInput.type = "number";
-    timerInput.min = "1";
-    timerInput.max = "120";
-    timerInput.value = "10";
-    timerInput.id = `timer_value_${index}`;
-    config.appendChild(configLabel);
-    config.appendChild(timerInput);
-    timerDescRow.appendChild(descInput);
-    timerDescRow.appendChild(descLabel);
-    timerDescRow.appendChild(config);
-
-    timerWrapper.appendChild(timerNoneRow);
-    timerWrapper.appendChild(timerAscRow);
-    timerWrapper.appendChild(timerDescRow);
-
     const startButton = document.createElement("button");
     startButton.className = "btn-primary";
     startButton.style.width = "100%";
@@ -456,24 +523,7 @@ function displayQuizzes() {
     card.appendChild(title);
     card.appendChild(description);
     card.appendChild(info);
-    card.appendChild(timerWrapper);
     card.appendChild(startButton);
-
-    const noneRadio = card.querySelector(`#timer_none_${index}`);
-    const ascRadio = card.querySelector(`#timer_asc_${index}`);
-    const descRadio = card.querySelector(`#timer_desc_${index}`);
-
-    noneRadio.addEventListener("change", () => {
-      config.classList.remove("show");
-    });
-
-    ascRadio.addEventListener("change", () => {
-      config.classList.remove("show");
-    });
-
-    descRadio.addEventListener("change", () => {
-      config.classList.toggle("show");
-    });
 
     grid.appendChild(card);
   });
@@ -490,18 +540,16 @@ function startQuiz(index) {
   incorrectCount = 0;
   timeExpired = false;
 
-  const timerRadios = document.getElementsByName(`timer_${index}`);
-  timerMode = "none";
-  timerRadios.forEach((radio) => {
-    if (radio.checked) {
-      timerMode = radio.value;
-    }
-  });
+  // Use global timer controls (moved to navbar)
+  function getGlobalTimerMode() {
+    const checked = document.querySelector('input[name="globalTimer"]:checked');
+    return checked ? checked.value : "none";
+  }
 
+  timerMode = getGlobalTimerMode();
   if (timerMode === "descending") {
-    const minutes = parseInt(
-      document.getElementById(`timer_value_${index}`).value,
-    );
+    const minutesEl = document.getElementById("globalTimerValue");
+    const minutes = minutesEl ? parseInt(minutesEl.value, 10) || 10 : 10;
     timerDuration = minutes * 60;
   }
 
@@ -511,6 +559,10 @@ function startQuiz(index) {
   document.getElementById("homePage").style.display = "none";
   document.getElementById("quizPage").style.display = "block";
   document.getElementById("resultsPage").style.display = "none";
+
+  // Hide global top navbar while taking quiz
+  const topNavbar = document.getElementById("topNavbar");
+  if (topNavbar) topNavbar.style.display = "none";
 
   document.getElementById("quizTitle").textContent = currentQuiz.name;
 
@@ -525,6 +577,35 @@ function startQuiz(index) {
 
   initProgressBar(currentQuiz.questions.length);
   updateProgressSegment(-1, ""); // تلوين الحالي بالازرق
+
+  // ===== Prompt 2: Monolingual vs Bilingual Detection =====
+  const quizEnableTranslation = currentQuiz.enableTranslation !== false; // default true
+  const quizPrimaryLanguage = currentQuiz.primaryLanguage || "en";
+
+  const translateBtn = document.getElementById("translateBtn");
+  const langSwitchContainer = document.getElementById("langSwitchContainer");
+
+  if (!quizEnableTranslation) {
+    // Hide translation UI completely
+    translateBtn.style.display = "none";
+    if (langSwitchContainer) langSwitchContainer.style.display = "none";
+
+    // Force the correct language automatically without triggering side effects
+    if (quizPrimaryLanguage === "ar") {
+      isTranslated = true;
+    } else {
+      isTranslated = false;
+    }
+    document.getElementById("question-content").dir = isTranslated
+      ? "rtl"
+      : "ltr";
+  } else {
+    // Translation enabled - show toggle, reset to English default
+    translateBtn.style.display = "inline-block";
+    if (langSwitchContainer) langSwitchContainer.style.display = "block";
+    isTranslated = false;
+    document.getElementById("question-content").dir = "ltr";
+  }
 
   displayQuestion();
 }
@@ -578,32 +659,53 @@ function initProgressBar(totalQuestions) {
     const segment = document.createElement("div");
     segment.className = "progress-segment";
     segment.id = `prog-seg-${i}`; // ID مميز لكل قطعة
+    segment.style.cursor = "pointer";
+    segment.title = `Question ${i + 1}`;
+    segment.addEventListener("click", () => jumpToQuestion(i));
     track.appendChild(segment);
   }
+}
+
+// ===== Prompt 2: Jump to Question via Progress Bar =====
+function jumpToQuestion(targetIndex) {
+  if (targetIndex === currentQuestionIndex) return;
+  if (targetIndex < 0 || targetIndex >= currentQuiz.questions.length) return;
+
+  // If current question is not submitted, mark it as skipped
+  if (!submitted[currentQuestionIndex] && !skipped.has(currentQuestionIndex)) {
+    skipped.add(currentQuestionIndex);
+    updateProgressSegment(currentQuestionIndex, "skipped");
+  }
+
+  currentQuestionIndex = targetIndex;
+  displayQuestion();
 }
 
 function updateProgressSegment(index, status) {
   const segment = document.getElementById(`prog-seg-${index}`);
   if (segment) {
-    // حذف أي كلاس قديم وإضافة الحالة الجديدة
+    // Prompt 2: Strict CSS class validation - remove ALL state classes first
     segment.classList.remove("current", "correct", "wrong", "skipped");
     if (
-      status !== "current" &&
-      status !== "correct" &&
-      status !== "wrong" &&
-      status !== "skipped"
+      status === "current" ||
+      status === "correct" ||
+      status === "wrong" ||
+      status === "skipped"
     ) {
-      console.log("No status to update for progress segment.");
-    } else {
       segment.classList.add(status);
     }
   }
 
-  // تمييز السؤال التالي (اختياري)
+  // تمييز السؤال التالي (اختياري) - only if it has no state yet
   const nextSegment = document.getElementById(`prog-seg-${index + 1}`);
-  if (nextSegment && nextSegment.classList.length === 1) {
-    // إذا لم يكن هناك حالة محددة بعد
-    nextSegment.classList.add("current");
+  if (nextSegment) {
+    const hasState =
+      nextSegment.classList.contains("correct") ||
+      nextSegment.classList.contains("wrong") ||
+      nextSegment.classList.contains("skipped");
+    if (!hasState) {
+      nextSegment.classList.add("current");
+    }
   }
 }
 
@@ -630,8 +732,9 @@ function displayQuestion() {
 
   // عرض الصورة إذا وجدت
   const questionImage = document.getElementById("questionImage");
-  if (question.image) {
-    questionImage.src = question.image;
+  const safeImg = sanitizeImageUrl(question.image || "");
+  if (safeImg) {
+    questionImage.src = safeImg;
     questionImage.style.display = "block";
   } else {
     questionImage.src = "";
@@ -820,7 +923,10 @@ function toggleTranslate() {
   if (document.getElementById("quizPage").style.display === "block") {
     document.getElementById("langToggle").checked = isTranslated;
     displayQuestion();
-    showFeedback();
+    // Prompt 2: Only show feedback if current question is already submitted
+    if (submitted[currentQuestionIndex] === true) {
+      showFeedback();
+    }
   } else {
     ShowWrongAndSkipped();
   }
@@ -1004,8 +1110,20 @@ function updateButtonStates() {
 function showResults() {
   clearInterval(timerInterval);
 
+  // Recompute authoritative scores from `answers` (do not trust mutable client counters)
+  recomputeScores();
   const totalQuestions = currentQuiz.questions.length;
-  const skippedCount = skipped.size;
+  // Compute skipped count authoritatively: unanswered questions
+  let skippedCount = 0;
+  for (let i = 0; i < totalQuestions; i++) {
+    const q = currentQuiz.questions[i];
+    const ans = answers[i];
+    if (q.type === "multiple_choice") {
+      if (!Array.isArray(ans) || ans.length === 0) skippedCount++;
+    } else {
+      if (ans === undefined) skippedCount++;
+    }
+  }
   const percentage = Math.round((correctCount / totalQuestions) * 100);
 
   const elapsed = Math.floor((Date.now() - startTime) / 1000);
@@ -1014,6 +1132,8 @@ function showResults() {
 
   document.getElementById("quizPage").style.display = "none";
   document.getElementById("resultsPage").style.display = "block";
+  const topNavbar = document.getElementById("topNavbar");
+  if (topNavbar) topNavbar.style.display = "none";
 
   document.getElementById("finalScore").textContent = correctCount;
   document.getElementById("finalPercentage").textContent = `${percentage}%`;
@@ -1046,12 +1166,19 @@ function showResults() {
     document.getElementById("wrongAnswersList").children.length > 0;
   const IsFoundSkippedAnswers =
     document.getElementById("skippedAnswersList").children.length > 0;
+  // Prompt 2: Hide lang switch for monolingual quizzes
+  const quizEnableTranslation = currentQuiz
+    ? currentQuiz.enableTranslation !== false
+    : true;
+
+  downloadBtn.style.display = "none";
+  langSwitchContainer.style.display = "none";
+
   if (IsFoundWrongAnswers || IsFoundSkippedAnswers) {
     downloadBtn.style.display = "inline-block";
-    langSwitchContainer.style.display = "block";
-  } else {
-    downloadBtn.style.display = "none";
-    langSwitchContainer.style.display = "none";
+    if (quizEnableTranslation) {
+      langSwitchContainer.style.display = "block";
+    }
   }
 }
 
@@ -1061,15 +1188,20 @@ function ShowWrongAndSkipped() {
 
   // الأسئلة الخاطئة
   Object.keys(answers).forEach((index) => {
-    const question = currentQuiz.questions[index];
-    let isCorrect = false;
+    const idx = Number(index);
+    const question = currentQuiz.questions[idx];
+    if (!question) return;
 
+    const userAnswer = answers[idx];
+    // Treat unanswered values as skipped (do not include as wrong)
     if (question.type === "multiple_choice") {
-      isCorrect =
-        JSON.stringify(answers[index].sort((a, b) => a - b)) ===
-        JSON.stringify(question.correct_answers.sort((a, b) => a - b));
+      if (!Array.isArray(userAnswer) || userAnswer.length === 0) return;
+      var isCorrect =
+        JSON.stringify(userAnswer.slice().sort((a, b) => a - b)) ===
+        JSON.stringify(question.correct_answers.slice().sort((a, b) => a - b));
     } else {
-      isCorrect = answers[index] === question.correct_answer;
+      if (userAnswer === undefined) return;
+      var isCorrect = Number(userAnswer) === Number(question.correct_answer);
     }
 
     if (!isCorrect) {
@@ -1100,30 +1232,45 @@ function ShowWrongAndSkipped() {
         image: qImage,
         userAnswer:
           question.type === "multiple_choice"
-            ? answers[index]
-                .map((idx) =>
+            ? (userAnswer || [])
+                .map((aidx) =>
                   isTranslated && question.options_ar
-                    ? question.options_ar[idx]
-                    : question.options[idx],
+                    ? question.options_ar[aidx]
+                    : question.options[aidx],
                 )
                 .join(" & ")
             : isTranslated && question.options_ar
-              ? question.options_ar[answers[index]]
-              : question.options[answers[index]],
+              ? question.options_ar[userAnswer]
+              : question.options[userAnswer],
         correctAnswer: correctAnswerText,
         explanation:
           isTranslated && question.explanation_ar
             ? question.explanation_ar
             : question.explanation,
+        index: idx,
       });
     }
   });
 
-  // الأسئلة المتخطاة
-  skipped.forEach((index) => {
-    const question = currentQuiz.questions[index];
-    let correctAnswerText = "";
+  // Build skipped list from unanswered questions (excluding wrong answers)
+  const wrongIndices = new Set(wrongAnswers.map((w) => w.index));
+  for (let i = 0; i < currentQuiz.questions.length; i++) {
+    if (wrongIndices.has(i)) continue;
+    const question = currentQuiz.questions[i];
+    if (!question) continue;
 
+    const userAnswer = answers[i];
+    let isUnanswered = false;
+    if (question.type === "multiple_choice") {
+      if (!Array.isArray(userAnswer) || userAnswer.length === 0)
+        isUnanswered = true;
+    } else {
+      if (userAnswer === undefined) isUnanswered = true;
+    }
+
+    if (!isUnanswered) continue;
+
+    let correctAnswerText = "";
     if (question.type === "multiple_choice") {
       correctAnswerText =
         isTranslated && question.options_ar
@@ -1152,7 +1299,7 @@ function ShowWrongAndSkipped() {
           : question.explanation,
       image: question.image || "",
     });
-  });
+  }
 
   const YourWrongAnswersText = isTranslated ? "إجاباتك" : "Your Answer";
   const TheCorrectAnswerText = isTranslated
@@ -1179,13 +1326,17 @@ function ShowWrongAndSkipped() {
       div.appendChild(questionLine);
 
       if (item.image) {
-        const img = document.createElement("img");
-        img.src = item.image;
-        img.className = "question-image";
-        img.alt = "Question Image";
-        img.style.maxWidth = "100%";
-        img.style.marginTop = "10px";
-        div.appendChild(img);
+        const safe = sanitizeImageUrl(item.image);
+        if (safe) {
+          const img = document.createElement("img");
+          img.src = safe;
+          img.className = "question-image";
+          img.alt = "Question Image";
+          img.style.maxWidth = "100%";
+          img.style.marginTop = "10px";
+          div.appendChild(img);
+        }
+        // if image not safe, skip image but continue rendering the item
       }
 
       const yourAnswerLine = document.createElement("div");
@@ -1241,13 +1392,17 @@ function ShowWrongAndSkipped() {
       div.appendChild(questionLine);
 
       if (item.image) {
-        const img = document.createElement("img");
-        img.src = item.image;
-        img.className = "question-image";
-        img.alt = "Question Image";
-        img.style.maxWidth = "100%";
-        img.style.marginTop = "10px";
-        div.appendChild(img);
+        const safe = sanitizeImageUrl(item.image);
+        if (safe) {
+          const img = document.createElement("img");
+          img.src = safe;
+          img.className = "question-image";
+          img.alt = "Question Image";
+          img.style.maxWidth = "100%";
+          img.style.marginTop = "10px";
+          div.appendChild(img);
+        }
+        // continue rendering item even if image unsafe
       }
 
       const correctAnswerLine = document.createElement("div");
@@ -1275,11 +1430,172 @@ function ShowWrongAndSkipped() {
   }
 }
 
+// ===== Security helpers =====
+function escapeHtml(str) {
+  if (str === undefined || str === null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function sanitizeImageUrl(url) {
+  if (!url) return "";
+  try {
+    const u = new URL(String(url), window.location.href);
+    if (u.protocol === "http:" || u.protocol === "https:") return u.href;
+  } catch (e) {}
+  return "";
+}
+
+function buildReportData() {
+  const wrongAnswers = [];
+  const skippedAnswers = [];
+
+  // Recompute from authoritative data structures (currentQuiz, answers, skipped)
+  if (!currentQuiz || !Array.isArray(currentQuiz.questions)) {
+    return { wrongAnswers: [], skippedAnswers: [] };
+  }
+
+  Object.keys(answers).forEach((indexStr) => {
+    const index = Number(indexStr);
+    const question = currentQuiz.questions[index];
+    if (!question) return;
+
+    let isCorrect = false;
+    const userAnswer = answers[index];
+    if (question.type === "multiple_choice") {
+      // Treat empty arrays as unanswered (skipped), not incorrect
+      if (!Array.isArray(userAnswer) || userAnswer.length === 0) return;
+      isCorrect =
+        JSON.stringify(userAnswer.slice().sort((a, b) => a - b)) ===
+        JSON.stringify(
+          (question.correct_answers || []).slice().sort((a, b) => a - b),
+        );
+    } else {
+      // For single-choice, undefined means unanswered
+      if (userAnswer === undefined) return;
+      isCorrect = Number(userAnswer) === Number(question.correct_answer);
+    }
+
+    if (!isCorrect) {
+      const correctOptions =
+        question.type === "multiple_choice"
+          ? (question.correct_answers || [])
+              .map((idx) => question.options?.[idx])
+              .join(" & ")
+          : question.options?.[question.correct_answer];
+
+      wrongAnswers.push({
+        question:
+          isTranslated && question.question_ar
+            ? question.question_ar
+            : question.question,
+        image: sanitizeImageUrl(question.image || ""),
+        userAnswer:
+          question.type === "multiple_choice"
+            ? (userAnswer || [])
+                .map((idx) =>
+                  isTranslated && question.options_ar
+                    ? question.options_ar[idx]
+                    : question.options[idx],
+                )
+                .join(" & ")
+            : (isTranslated && question.options_ar
+                ? question.options_ar[userAnswer]
+                : question.options[userAnswer]) || "",
+        correctAnswer: correctOptions || "",
+        explanation:
+          isTranslated && question.explanation_ar
+            ? question.explanation_ar
+            : question.explanation || "",
+        index: index,
+      });
+    }
+  });
+
+  // Build skipped answers by scanning all questions and excluding wrong ones
+  const wrongIndices = new Set(wrongAnswers.map((w) => w.index));
+  for (let i = 0; i < currentQuiz.questions.length; i++) {
+    if (wrongIndices.has(i)) continue;
+    const question = currentQuiz.questions[i];
+    if (!question) continue;
+
+    const userAnswer = answers[i];
+    let isUnanswered = false;
+    if (question.type === "multiple_choice") {
+      if (!Array.isArray(userAnswer) || userAnswer.length === 0)
+        isUnanswered = true;
+    } else {
+      if (userAnswer === undefined) isUnanswered = true;
+    }
+    if (!isUnanswered) continue;
+
+    const correctOptions =
+      question.type === "multiple_choice"
+        ? (question.correct_answers || [])
+            .map((idx) => question.options?.[idx])
+            .join(" & ")
+        : question.options?.[question.correct_answer];
+
+    skippedAnswers.push({
+      question:
+        isTranslated && question.question_ar
+          ? question.question_ar
+          : question.question,
+      correctAnswer: correctOptions || "",
+      explanation:
+        isTranslated && question.explanation_ar
+          ? question.explanation_ar
+          : question.explanation || "",
+      image: sanitizeImageUrl(question.image || ""),
+    });
+  }
+
+  return { wrongAnswers, skippedAnswers };
+}
+
+function recomputeScores() {
+  if (!currentQuiz || !Array.isArray(currentQuiz.questions)) {
+    correctCount = 0;
+    incorrectCount = 0;
+    return;
+  }
+  let c = 0;
+  let ic = 0;
+  for (let i = 0; i < currentQuiz.questions.length; i++) {
+    const q = currentQuiz.questions[i];
+    const ans = answers[i];
+    // Treat undefined or empty multiple-choice arrays as unanswered (skip)
+    if (q.type === "multiple_choice") {
+      if (!Array.isArray(ans) || ans.length === 0) continue;
+    } else {
+      if (ans === undefined) continue;
+    }
+    let isCorrect = false;
+    if (q.type === "multiple_choice") {
+      isCorrect =
+        JSON.stringify(ans.slice().sort((a, b) => a - b)) ===
+        JSON.stringify((q.correct_answers || []).slice().sort((a, b) => a - b));
+    } else {
+      isCorrect = Number(ans) === Number(q.correct_answer);
+    }
+    if (isCorrect) c++;
+    else ic++;
+  }
+  correctCount = c;
+  incorrectCount = ic;
+}
+
 async function downloadErrorsPDF() {
   const btn = document.getElementById("downloadPdfBtn");
-  const originalText = btn.innerHTML;
-  btn.innerHTML = "⏳ جاري التجهيز...";
-  btn.disabled = true;
+  const originalText = btn ? btn.innerHTML : "";
+  if (btn) {
+    btn.innerHTML = "⏳ جاري التجهيز...";
+    btn.disabled = true;
+  }
 
   // 1. تجميع المحتوى
   const wrongContent =
@@ -1289,8 +1605,10 @@ async function downloadErrorsPDF() {
 
   if (!wrongContent && !skippedContent) {
     alert("لا توجد أخطاء لطباعتها!");
-    btn.innerHTML = originalText;
-    btn.disabled = false;
+    if (btn) {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
     return;
   }
 
@@ -1455,8 +1773,10 @@ async function downloadErrorsPDF() {
     console.error(error);
     alert("حدث خطأ، تأكد من اتصال الطابعة أو حاول مرة أخرى");
   } finally {
-    btn.innerHTML = originalText;
-    btn.disabled = false;
+    if (btn) {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
   }
 }
 
@@ -1473,6 +1793,8 @@ function goHome() {
   document.getElementById("quizPage").style.display = "none";
   document.getElementById("resultsPage").style.display = "none";
   currentQuiz = null;
+  const topNavbar = document.getElementById("topNavbar");
+  if (topNavbar) topNavbar.style.display = "flex";
 }
 
 // تحميل البيانات عند بدء التطبيق
@@ -1485,10 +1807,8 @@ window.onload = function () {
       currentUser = user || null;
       updateAuthUI(currentUser);
       clearFeedMessage();
-      if (!hasRouteParams() && currentUser) {
-        window.location.href = "dashboard.html";
-        return;
-      }
+      // Prompt 1: User stays on home page after login
+      // Must manually click "Manage My Quizzes" to go to dashboard
       loadQuizzes();
     });
   } else {
