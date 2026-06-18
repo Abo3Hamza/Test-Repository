@@ -154,6 +154,10 @@ async function loginWithGoogle() {
 
   try {
     await auth.signInWithPopup(provider);
+    // Force a reload so UI fully syncs after auth state resolves
+    try {
+      window.location.reload();
+    } catch (e) {}
   } catch (error) {
     console.error("خطأ في تسجيل الدخول عبر جوجل:", error);
     handleFirestoreErrorGlobal(error, "Failed to sign in. Please try again.");
@@ -168,6 +172,10 @@ async function logoutUser() {
 
   try {
     await auth.signOut();
+    // Force a reload so UI fully syncs after sign-out
+    try {
+      window.location.reload();
+    } catch (e) {}
   } catch (error) {
     console.error("خطأ في تسجيل الخروج:", error);
     handleFirestoreErrorGlobal(error, "Failed to sign out. Please try again.");
@@ -514,6 +522,12 @@ function displayQuizzes() {
     questionCountSpan.textContent = `${questionCount} أسئلة`;
     info.appendChild(questionCountSpan);
 
+    const downloadBtn = document.createElement("button");
+    downloadBtn.className = "btn-secondary";
+    downloadBtn.textContent = "Download PDF";
+    downloadBtn.addEventListener("click", () => openQuizPdfModal(index));
+    info.appendChild(downloadBtn);
+
     const startButton = document.createElement("button");
     startButton.className = "btn-primary";
     startButton.style.width = "100%";
@@ -527,6 +541,192 @@ function displayQuizzes() {
 
     grid.appendChild(card);
   });
+}
+
+// ===== PDF Download Modal & Print Helpers =====
+let pendingPdfQuizForPrint = null;
+
+function openQuizPdfModal(index) {
+  pendingPdfQuizForPrint = quizzes[index];
+  const overlay = document.getElementById("pdfModalOverlay");
+  if (!overlay) return;
+  const titleEl = overlay.querySelector(".pdf-modal-quiz-title");
+  if (titleEl)
+    titleEl.textContent = pendingPdfQuizForPrint.name || "Untitled Quiz";
+
+  // Determine bilingual status strictly from the specific quiz data.
+  // Only show the language toggle if the quiz explicitly marks itself bilingual
+  // via `showBothLanguages === true` or `enableTranslation === true`.
+  let isBilingual = false;
+  try {
+    if (
+      pendingPdfQuizForPrint &&
+      pendingPdfQuizForPrint.showBothLanguages === true
+    ) {
+      isBilingual = true;
+    } else if (
+      pendingPdfQuizForPrint &&
+      pendingPdfQuizForPrint.enableTranslation === true
+    ) {
+      isBilingual = true;
+    } else {
+      isBilingual = false;
+    }
+  } catch (e) {}
+
+  const langContainer = overlay.querySelector("#pdfLanguageContainer");
+  const answeredBtn = overlay.querySelector(".pdf-answered-btn");
+  const unansweredBtn = overlay.querySelector(".pdf-unanswered-btn");
+
+  // reset
+  if (langContainer)
+    langContainer.style.display = isBilingual ? "block" : "none";
+
+  // Ensure radio inputs reflect the visible state and action buttons behavior
+  const langRadios = overlay.querySelectorAll('input[name="pdfLang"]');
+  if (!isBilingual) {
+    // Monolingual: hide toggle and auto-select primary language for printing
+    overlay.dataset.selectedLang =
+      pendingPdfQuizForPrint.primaryLanguage ||
+      (pendingPdfQuizForPrint.questions &&
+      pendingPdfQuizForPrint.questions[0] &&
+      pendingPdfQuizForPrint.questions[0].question_ar
+        ? "ar"
+        : "en");
+    // clear visual radio checks
+    langRadios.forEach((r) => (r.checked = false));
+    if (answeredBtn) answeredBtn.disabled = false;
+    if (unansweredBtn) unansweredBtn.disabled = false;
+  } else {
+    // Bilingual: require explicit language selection before printing
+    overlay.dataset.selectedLang = "";
+    // clear any previous radio checks
+    langRadios.forEach((r) => (r.checked = false));
+    if (answeredBtn) answeredBtn.disabled = true;
+    if (unansweredBtn) unansweredBtn.disabled = true;
+  }
+
+  overlay.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function closeQuizPdfModal() {
+  const overlay = document.getElementById("pdfModalOverlay");
+  if (!overlay) return;
+  overlay.style.display = "none";
+  document.body.style.overflow = "";
+  pendingPdfQuizForPrint = null;
+}
+
+function printQuizAs(mode) {
+  const overlay = document.getElementById("pdfModalOverlay");
+  const quiz = pendingPdfQuizForPrint || currentQuiz;
+  if (!quiz) {
+    alert("No quiz selected to download.");
+    closeQuizPdfModal();
+    return;
+  }
+  // determine language selection
+  let lang = null;
+  if (overlay) {
+    lang = overlay.dataset.selectedLang || null;
+  }
+  if (!lang) {
+    // fallback: primaryLanguage or detect
+    lang =
+      quiz.primaryLanguage ||
+      (quiz.questions && quiz.questions[0] && quiz.questions[0].question_ar
+        ? "ar"
+        : "en");
+  }
+
+  const html = buildQuizPrintHtml(quiz, mode, lang);
+  try {
+    printJS({
+      printable: html,
+      type: "raw-html",
+      documentTitle: `Quiz_${quiz.name || "export"}`,
+    });
+  } catch (error) {
+    console.error(error);
+    alert("Failed to generate PDF. Please try again.");
+  } finally {
+    closeQuizPdfModal();
+  }
+}
+
+function buildQuizPrintHtml(quiz, mode, lang) {
+  const direction = lang === "ar" ? "rtl" : "ltr";
+  const primary =
+    getComputedStyle(document.documentElement)
+      .getPropertyValue("--primary")
+      .trim() || "#070707";
+
+  let content = `
+    <div class="print-container" dir="${direction}">
+      <div class="header">
+        <h1>${escapeHtml(quiz.name || "")}</h1>
+        <h2>${escapeHtml(quiz.description || "")}</h2>
+      </div>
+  `;
+
+  const questions = Array.isArray(quiz.questions) ? quiz.questions : [];
+  questions.forEach((q, idx) => {
+    const qText = escapeHtml(
+      lang === "ar"
+        ? q.question_ar || q.question
+        : q.question || q.question_ar || "",
+    );
+    const imgUrl = sanitizeImageUrl(q.image || "");
+    content += `<div class="q-card"><div class="q-title">${idx + 1}. ${qText}</div>`;
+    if (imgUrl) {
+      content += `<div class="q-image-wrap"><img src="${imgUrl}" alt="Question Image"/></div>`;
+    }
+
+    const opts = Array.isArray(q.options) ? q.options : [];
+    content += `<ol class="options">`;
+    opts.forEach((opt, oi) => {
+      // try language-specific options if available
+      const optionText =
+        lang === "ar"
+          ? (q.options_ar && q.options_ar[oi]) || opt
+          : opt || (q.options_ar && q.options_ar[oi]);
+      const safeOpt = escapeHtml(optionText || "");
+      let marker = "";
+      if (mode === "answered") {
+        const isCorrect =
+          q.type === "multiple_choice"
+            ? Array.isArray(q.correct_answers) && q.correct_answers.includes(oi)
+            : Number(q.correct_answer) === oi;
+        if (isCorrect) {
+          marker = `<span class="correct-badge">✓</span>`;
+        }
+      }
+      content += `<li class="option-item">${marker}<span class="option-text">${safeOpt}</span></li>`;
+    });
+    content += `</ol></div>`;
+  });
+
+  content += `</div>`;
+
+  const style = `
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+      *{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing:border-box; }
+      body{ font-family: 'Cairo', sans-serif; margin:0; padding:20px; background:white; }
+      .header{ text-align:center; margin-bottom:20px; }
+      .header h1{ margin:0; color:${primary}; font-size:22px; }
+      .header h2{ margin:6px 0 0 0; color:#666; font-size:14px; }
+      .q-card{ border:1px solid #e6e6e6; border-radius:8px; padding:12px; margin:12px 0; background:#fff; }
+      .q-title{ font-weight:700; margin-bottom:8px; font-size:16px; }
+      .q-image-wrap img{ max-width:100%; height:auto; display:block; margin:8px 0; border-radius:6px; }
+      .options{ margin:0; padding-left:18px; }
+      .option-item{ margin:6px 0; font-size:14px; }
+      .correct-badge{ display:inline-block; margin-right:8px; background:#389e0d; color:white; border-radius:4px; padding:2px 6px; font-weight:700; }
+    </style>
+  `;
+
+  return content + style;
 }
 
 // ===== بدء الكويز =====

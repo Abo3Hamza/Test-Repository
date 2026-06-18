@@ -125,6 +125,84 @@ const elements = {
   quizForm: document.getElementById("quizForm"),
 };
 
+// Validation config
+const MAX_LENGTHS = {
+  quizName: 200,
+  quizDescription: 500,
+  question: 1000,
+  option: 500,
+};
+
+function updateSaveAddState() {
+  const anyCharErrors = document.querySelectorAll(".char-error").length > 0;
+  if (elements.saveQuizBtn) elements.saveQuizBtn.disabled = anyCharErrors;
+  if (elements.addQuestionBtn)
+    elements.addQuestionBtn.disabled =
+      anyCharErrors || builderQuestions.length >= 200;
+}
+
+function clearCharErrorFor(el) {
+  if (!el) return;
+  el.classList.remove("input-error");
+  const next = el.nextElementSibling;
+  if (next && next.classList && next.classList.contains("char-error"))
+    next.remove();
+}
+
+function showCharErrorFor(el, length, max) {
+  if (!el) return;
+  el.classList.add("input-error");
+  clearCharErrorFor(el);
+  const hint = document.createElement("small");
+  hint.className = "char-error";
+  hint.style.color = "var(--danger)";
+  hint.style.display = "block";
+  hint.style.marginTop = "6px";
+  hint.textContent = `${length} / ${max} characters`;
+  el.insertAdjacentElement("afterend", hint);
+  try {
+    el.focus();
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  } catch (e) {}
+}
+
+function getMaxForInput(input) {
+  if (!input || !input.dataset) return null;
+  const field = input.dataset.field;
+  if (
+    field === "question" ||
+    field === "question_ar" ||
+    field === "explanation" ||
+    field === "explanation_ar"
+  )
+    return MAX_LENGTHS.question;
+  if (field === "option") return MAX_LENGTHS.option;
+  if (
+    input.id === "quizName" ||
+    (input.dataset.field === undefined && input.id === "quizName")
+  )
+    return MAX_LENGTHS.quizName;
+  if (
+    input.id === "quizDescription" ||
+    (input.dataset.field === undefined && input.id === "quizDescription")
+  )
+    return MAX_LENGTHS.quizDescription;
+  return null;
+}
+
+function validateInputElement(input) {
+  if (!input) return;
+  const max = getMaxForInput(input) || null;
+  if (!max) return; // nothing to validate here
+  const length = String(input.value || "").length;
+  if (length > max) {
+    showCharErrorFor(input, length, max);
+  } else {
+    clearCharErrorFor(input);
+  }
+  updateSaveAddState();
+}
+
 // Fullscreen / toggle controls
 const dashboardShell = document.querySelector(".dashboard-shell");
 const createPanel = document.querySelectorAll(".layout-grid .panel")[0];
@@ -501,7 +579,7 @@ function parseRawJsonToBuilder(rawText) {
 
     // Defensive: do NOT spread or directly trust parsed objects (prototype pollution risk).
     // Only accept explicit, whitelisted question fields and coerce types.
-    const MAX_QUESTIONS = 500;
+    const MAX_QUESTIONS = 200;
     if (!Array.isArray(nextQuestions)) nextQuestions = [];
     if (nextQuestions.length > MAX_QUESTIONS) {
       setStatus(
@@ -571,7 +649,18 @@ function renderMyQuizzes() {
 
     const meta = document.createElement("div");
     meta.className = "my-quiz-meta";
-    meta.textContent = `Questions: ${questionCount} | Public: ${quiz.isPublic ? "Yes" : "No"} | TTL: ${ttl}`;
+    // Build inline elements: question count badge + download button
+    const qCountSpan = document.createElement("span");
+    qCountSpan.className = "question-count";
+    qCountSpan.textContent = `${questionCount} أسئلة`;
+
+    const inlineRight = document.createElement("div");
+    inlineRight.style.display = "flex";
+    inlineRight.style.alignItems = "center";
+    inlineRight.style.gap = "8px";
+
+    meta.appendChild(qCountSpan);
+    meta.appendChild(inlineRight);
 
     const actions = document.createElement("div");
     actions.className = "card-actions";
@@ -666,6 +755,13 @@ function createLanguageField({
   if (optionIndex !== null) {
     input.dataset.optionIndex = String(optionIndex);
   }
+  // Attach real-time validation listeners for character limits
+  const onInputValidate = (e) => validateInputElement(e.target || input);
+  input.addEventListener("input", onInputValidate);
+  input.addEventListener("paste", (e) => {
+    // small timeout to allow pasted content
+    setTimeout(() => validateInputElement(input), 10);
+  });
 
   wrapper.appendChild(input);
   return wrapper;
@@ -949,6 +1045,13 @@ function renderQuestionBuilder() {
 
   applyBuilderLanguageVisibility();
   syncJsonTextarea();
+  // Run validation on existing inputs to update UI state
+  elements.questionBuilderList
+    .querySelectorAll("input, textarea")
+    .forEach((inp) => {
+      validateInputElement(inp);
+    });
+  updateSaveAddState();
 }
 
 function onQuestionDragStart(event) {
@@ -1084,6 +1187,15 @@ async function saveQuiz() {
     showInlineError(
       elements.questionBuilderList,
       "Add at least one question before saving.",
+    );
+    return;
+  }
+
+  // Enforce maximum number of questions
+  if (builderQuestions.length > 200) {
+    setStatus(
+      `Quiz has too many questions: ${builderQuestions.length} / 200`,
+      "error",
     );
     return;
   }
@@ -1240,11 +1352,64 @@ async function saveQuiz() {
         return;
       }
     }
+
+    // Validate text lengths for question and options (on Save only)
+    const qText = String(question.question || "").trim();
+    const qTextAr = String(question.question_ar || "").trim();
+    if (qText.length > 1000) {
+      setStatus(
+        `Question ${questionIndex + 1} is too long: ${qText.length} / 1000 characters`,
+        "error",
+      );
+      return;
+    }
+    if (qTextAr.length > 1000) {
+      setStatus(
+        `Question ${questionIndex + 1} (Arabic) is too long: ${qTextAr.length} / 1000 characters`,
+        "error",
+      );
+      return;
+    }
+
+    const opts = Array.isArray(question.options) ? question.options : [];
+    const optsAr = Array.isArray(question.options_ar)
+      ? question.options_ar
+      : [];
+    for (let oi = 0; oi < opts.length; oi += 1) {
+      const oText = String(opts[oi] || "").trim();
+      if (oText.length > 500) {
+        setStatus(
+          `Question ${questionIndex + 1} option ${oi + 1} is too long: ${oText.length} / 500 characters`,
+          "error",
+        );
+        return;
+      }
+    }
+    for (let oi = 0; oi < optsAr.length; oi += 1) {
+      const oText = String(optsAr[oi] || "").trim();
+      if (oText.length > 500) {
+        setStatus(
+          `Question ${questionIndex + 1} Arabic option ${oi + 1} is too long: ${oText.length} / 500 characters`,
+          "error",
+        );
+        return;
+      }
+    }
+  }
+
+  // Validate description length
+  const description = (elements.quizDescription.value || "").trim();
+  if (description.length > 500) {
+    setStatus(
+      `Description is too long: ${description.length} / 500 characters`,
+      "error",
+    );
+    return;
   }
 
   const payload = {
     name,
-    description: (elements.quizDescription.value || "").trim().slice(0, 1000),
+    description,
     primaryLanguage: getPrimaryLanguage(),
     enableTranslation: isTranslationEnabled(),
     isPublic: elements.isPublic.checked,
@@ -1254,6 +1419,25 @@ async function saveQuiz() {
     questions: sanitizeQuestionsForSave(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   };
+
+  // Payload size safety check (approximate UTF-8 bytes)
+  try {
+    const json = JSON.stringify(payload);
+    const byteSize =
+      typeof TextEncoder !== "undefined"
+        ? new TextEncoder().encode(json).length
+        : new Blob([json]).size;
+    const MAX_BYTES = 950 * 1024; // 950 KB safe threshold
+    if (byteSize > MAX_BYTES) {
+      setStatus(
+        "Quiz is too large to save. Please reduce text length or remove some questions.",
+        "error",
+      );
+      return;
+    }
+  } catch (e) {
+    console.warn("Failed to compute payload size", e);
+  }
 
   try {
     if (editingQuizId) {
@@ -1497,6 +1681,13 @@ function registerEventHandlers() {
   }
 
   elements.addQuestionBtn?.addEventListener("click", () => {
+    if (builderQuestions.length >= 200) {
+      setStatus(
+        `Cannot add more questions: ${builderQuestions.length} / 200`,
+        "error",
+      );
+      return;
+    }
     const type = elements.newQuestionType.value;
     builderQuestions.push(createQuestionTemplate(type));
     renderQuestionBuilder();
@@ -1506,6 +1697,24 @@ function registerEventHandlers() {
 
   elements.resetBuilderBtn?.addEventListener("click", resetBuilder);
   elements.saveQuizBtn?.addEventListener("click", saveQuiz);
+
+  // Real-time validation for top-level fields
+  if (elements.quizName) {
+    elements.quizName.addEventListener("input", (e) =>
+      validateInputElement(e.target),
+    );
+    elements.quizName.addEventListener("paste", (e) =>
+      setTimeout(() => validateInputElement(elements.quizName), 10),
+    );
+  }
+  if (elements.quizDescription) {
+    elements.quizDescription.addEventListener("input", (e) =>
+      validateInputElement(e.target),
+    );
+    elements.quizDescription.addEventListener("paste", (e) =>
+      setTimeout(() => validateInputElement(elements.quizDescription), 10),
+    );
+  }
 
   elements.quizPrimaryLanguage?.addEventListener("change", () => {
     applyBuilderLanguageVisibility();
@@ -1774,6 +1983,10 @@ function initDashboard() {
   registerEventHandlers();
   loadTheme();
   displayThemeOptions();
+
+  // Validate top-level fields initially
+  if (elements.quizName) validateInputElement(elements.quizName);
+  if (elements.quizDescription) validateInputElement(elements.quizDescription);
 
   auth.onAuthStateChanged(async (user) => {
     if (!user) {
