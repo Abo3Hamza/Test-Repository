@@ -95,6 +95,33 @@ document.addEventListener("click", (event) => {
   }
 });
 
+// Settings modal handlers (dashboard)
+function openSettingsModal() {
+  const overlay = document.getElementById("settingsModalOverlay");
+  if (!overlay) return;
+  displayThemeOptions();
+  overlay.style.display = "flex";
+}
+
+function closeSettingsModal() {
+  const overlay = document.getElementById("settingsModalOverlay");
+  if (!overlay) return;
+  overlay.style.display = "none";
+}
+
+function saveSettings() {
+  try {
+    const checked = document.querySelector('input[name="globalTimer"]:checked');
+    timerMode = checked ? checked.value : "none";
+    const minutesEl = document.getElementById("globalTimerValue");
+    const minutes = minutesEl ? parseInt(minutesEl.value, 10) || 10 : 10;
+    timerDuration = minutes * 60;
+  } catch (e) {
+    console.warn("saveSettings failed:", e);
+  }
+  closeSettingsModal();
+}
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -1515,13 +1542,44 @@ function editQuiz(quizId) {
 }
 
 async function loadMyQuizzes() {
-  if (!currentUser) return;
+  // Strict: only run when `currentUser` is set by auth.onAuthStateChanged
+  if (!currentUser) {
+    console.log("loadMyQuizzes: currentUser is null — skipping fetch.");
+    elements.myQuizList.replaceChildren();
+    const msg = document.createElement("div");
+    msg.style.textAlign = "center";
+    msg.style.padding = "30px";
+    msg.style.color = "#666";
+    msg.style.gridColumn = "1 / -1";
+    msg.textContent =
+      "You haven't created any quizzes yet. Use the builder on the left to create your first quiz!";
+    elements.myQuizList.appendChild(msg);
+    myQuizzes = [];
+    return;
+  }
 
   try {
+    console.log("loadMyQuizzes: querying quizzes for userId=", currentUser.uid);
     const snapshot = await db
       .collection("quizzes")
       .where("userId", "==", currentUser.uid)
       .get();
+
+    console.log("loadMyQuizzes: fetched", snapshot ? snapshot.size : 0, "docs");
+
+    if (!snapshot || snapshot.empty) {
+      elements.myQuizList.replaceChildren();
+      const emptyMsg = document.createElement("div");
+      emptyMsg.style.textAlign = "center";
+      emptyMsg.style.padding = "30px";
+      emptyMsg.style.color = "#666";
+      emptyMsg.style.gridColumn = "1 / -1";
+      emptyMsg.textContent =
+        "You haven't created any quizzes yet. Use the builder on the left to create your first quiz!";
+      elements.myQuizList.appendChild(emptyMsg);
+      myQuizzes = [];
+      return;
+    }
 
     myQuizzes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     renderMyQuizzes();
@@ -1983,6 +2041,9 @@ function initDashboard() {
   registerEventHandlers();
   loadTheme();
   displayThemeOptions();
+
+  const settingsBtn = document.getElementById("settingsBtn");
+  if (settingsBtn) settingsBtn.addEventListener("click", openSettingsModal);
 
   // Validate top-level fields initially
   if (elements.quizName) validateInputElement(elements.quizName);

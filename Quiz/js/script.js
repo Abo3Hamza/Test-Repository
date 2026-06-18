@@ -260,30 +260,28 @@ async function loadQuizzes() {
     const userId = getUserIdFromUrl();
 
     if (!quizId && !userId) {
-      // If user is signed in, show their quizzes (public + own). Otherwise show landing welcome.
+      // If user is signed in: show only their quizzes.
       if (currentUser) {
         landingMode = false;
         try {
-          const [publicSnap, mySnap] = await Promise.all([
-            db.collection("quizzes").where("isPublic", "==", true).get(),
-            db
-              .collection("quizzes")
-              .where("userId", "==", currentUser.uid)
-              .get(),
-          ]);
-
-          const map = new Map();
-          publicSnap.docs.concat(mySnap.docs).forEach((doc) => {
-            map.set(doc.id, { id: doc.id, ...doc.data() });
-          });
-
-          quizzes = Array.from(map.values()).filter((q) =>
-            Array.isArray(q.questions),
+          console.log(
+            "loadQuizzes: fetching quizzes for userId=",
+            currentUser.uid,
           );
+          const mySnap = await db
+            .collection("quizzes")
+            .where("userId", "==", currentUser.uid)
+            .get();
+
+          quizzes = mySnap.docs
+            .map((doc) => ({ id: doc.id, ...doc.data() }))
+            .filter((q) => Array.isArray(q.questions));
+
+          console.log("loadQuizzes: fetched personal quizzes:", quizzes.length);
           initializeApp();
           return;
         } catch (err) {
-          console.warn("Error loading landing quizzes:", err);
+          console.warn("Error loading user quizzes:", err);
           quizzes = [];
           landingMode = true;
           clearFeedMessage();
@@ -292,11 +290,31 @@ async function loadQuizzes() {
         }
       }
 
+      // Guest: show only public quizzes
       landingMode = true;
-      quizzes = [];
-      clearFeedMessage();
-      initializeApp();
-      return;
+      try {
+        console.log("loadQuizzes: fetching public quizzes for guest");
+        const publicSnap = await db
+          .collection("quizzes")
+          .where("isPublic", "==", true)
+          .get();
+
+        quizzes = publicSnap.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((q) => Array.isArray(q.questions));
+
+        console.log("loadQuizzes: fetched public quizzes:", quizzes.length);
+        clearFeedMessage();
+        initializeApp();
+        return;
+      } catch (err) {
+        console.warn("Error loading public quizzes:", err);
+        quizzes = [];
+        landingMode = true;
+        clearFeedMessage();
+        initializeApp();
+        return;
+      }
     }
 
     landingMode = false;
@@ -415,16 +433,46 @@ function toggleThemeMenu() {
 }
 
 function closeThemeMenu() {
-  document.getElementById("themeMenu").classList.remove("show");
+  const m = document.getElementById("themeMenu");
+  if (m) m.classList.remove("show");
 }
 
 document.addEventListener("click", (e) => {
   const menu = document.getElementById("themeMenu");
   const btn = document.querySelector(".theme-toggle-btn");
-  if (!menu.contains(e.target) && !btn.contains(e.target)) {
+  if (menu && !menu.contains(e.target) && !(btn && btn.contains(e.target))) {
     closeThemeMenu();
   }
 });
+
+// Settings modal handlers
+function openSettingsModal() {
+  const overlay = document.getElementById("settingsModalOverlay");
+  if (!overlay) return;
+  // populate themes if needed
+  displayThemeOptions();
+  overlay.style.display = "flex";
+}
+
+function closeSettingsModal() {
+  const overlay = document.getElementById("settingsModalOverlay");
+  if (!overlay) return;
+  overlay.style.display = "none";
+}
+
+function saveSettings() {
+  // Persist chosen timer mode and value
+  try {
+    const checked = document.querySelector('input[name="globalTimer"]:checked');
+    timerMode = checked ? checked.value : "none";
+    const minutesEl = document.getElementById("globalTimerValue");
+    const minutes = minutesEl ? parseInt(minutesEl.value, 10) || 10 : 10;
+    timerDuration = minutes * 60;
+  } catch (e) {
+    console.warn("saveSettings failed:", e);
+  }
+  closeSettingsModal();
+}
 
 function applyTheme(index) {
   const theme = themes[index];
@@ -2015,4 +2063,8 @@ window.onload = function () {
     updateAuthUI(null);
     loadQuizzes();
   }
+
+  // Bind settings button if present
+  const settingsBtn = document.getElementById("settingsBtn");
+  if (settingsBtn) settingsBtn.addEventListener("click", openSettingsModal);
 };

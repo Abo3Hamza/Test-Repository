@@ -4,6 +4,13 @@
   box-sizing: border-box;
 }
 
+/* Prevent horizontal overflow on small devices */
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 :root {
   --primary: #667eea;
   --secondary: #764ba2;
@@ -936,6 +943,7 @@ input:checked + .slider .lang-label.en {
 
   /* Ensure layout/grid elements stack on small screens */
   .layout-grid {
+    margin-top: 25px;
     grid-template-columns: 1fr !important;
   }
 
@@ -971,10 +979,44 @@ input:checked + .slider .lang-label.en {
 
   /* Reduce padding on dashboard shell to fit mobile viewport */
   .dashboard-shell {
-    padding-top: 80px;
+    /* Make room for the fixed header on narrow screens */
+    padding-top: 120px;
     padding-left: 12px;
     padding-right: 12px;
   }
+
+  /* Fix: ensure homepage content is not hidden under fixed top navbar */
+  .home-page {
+    padding-top: 120px !important;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Ensure quizzes grid has safe horizontal padding on small screens */
+  .quizzes-grid {
+    padding: 0 12px !important;
+  }
+}
+
+/* Settings / PDF modal overlay (shared small rules) */
+.pdf-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+}
+
+.pdf-modal {
+  background: var(--bg-secondary, #fff);
+  color: var(--text, #111);
+  padding: 20px;
+  border-radius: 10px;
+  width: 520px;
+  max-width: 92%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 .empty-state {
@@ -1636,9 +1678,6 @@ input[type="radio"]:focus-visible {
   }
 }
 
-/* ============================================================
-   PROMPT 1: Top Navbar (Google Workspace Style)
-   ============================================================ */
 .top-navbar {
   display: flex;
   align-items: center;
@@ -1692,28 +1731,41 @@ input[type="radio"]:focus-visible {
   color: var(--text);
 }
 
-.nav-theme-btn {
-  position: static !important;
-  width: 42px;
-  height: 42px;
-  font-size: 1.2rem;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border);
-  color: var(--text);
-}
-
-.nav-theme-btn:hover {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: white;
-  transform: scale(1.05);
-}
-
 /* Theme menu in navbar context */
 .top-navbar .theme-menu {
   position: absolute;
   top: 64px;
   right: 24px;
+}
+
+/* Settings button: make the button the size of the gear and center the icon */
+#settingsBtn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px; /* size of the gear icon */
+  line-height: 1;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  box-sizing: border-box;
+  margin-top: 18px;
+}
+
+#settingsBtn:hover {
+  background: var(--primary);
+}
+
+/* Slightly reduce on very small screens */
+@media (max-width: 420px) {
+  #settingsBtn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
 }
 
 /* ============================================================
