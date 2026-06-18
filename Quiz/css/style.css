@@ -1749,22 +1749,22 @@ input[type="radio"]:focus-visible {
   font-size: 18px; /* size of the gear icon */
   line-height: 1;
   border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border);
+  background: transparent;
+  border: none;
   box-sizing: border-box;
   margin-top: 18px;
 }
 
 #settingsBtn:hover {
-  background: var(--primary);
+  background: transparent; /* no background change on hover */
+  color: var(--primary); /* subtle color change on hover */
+  transform: none;
 }
 
 /* Slightly reduce on very small screens */
 @media (max-width: 420px) {
-  #settingsBtn {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
+  .user-name {
+    display: none;
   }
 }
 
